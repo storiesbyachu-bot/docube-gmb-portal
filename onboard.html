@@ -75,6 +75,7 @@
     <div class="ob-step" id="ostep1"><div class="ob-step-n">Step 2</div><div class="ob-step-l">Practice</div></div>
     <div class="ob-step" id="ostep2"><div class="ob-step-n">Step 3</div><div class="ob-step-l">Hours & Services</div></div>
     <div class="ob-step" id="ostep3"><div class="ob-step-n">Step 4</div><div class="ob-step-l">Final Details</div></div>
+    <div class="ob-step" id="ostep4"><div class="ob-step-n">Step 5</div><div class="ob-step-l">GMB Profile</div></div>
   </div>
 </div>
 
@@ -100,7 +101,7 @@
       <div class="f"><label class="lbl">WhatsApp <span class="opt">(if different)</span></label><input type="tel" id="f_wa" placeholder="+91 98765 43210"></div>
       <div class="f span2"><label class="lbl">Email <span class="req">*</span></label><input type="email" id="f_email" placeholder="doctor@example.com"><span class="f-err" id="e_email">Enter valid email</span></div>
     </div>
-    <div class="form-nav"><span class="step-prog">1 of 4</span><button class="btn btn-orange" onclick="next(0)">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+    <div class="form-nav"><span class="step-prog">1 of 5</span><button class="btn btn-orange" onclick="next(0)">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button></div>
   </div>
 
   <!-- Step 2 -->
@@ -126,7 +127,7 @@
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
-      <span class="step-prog">2 of 4</span>
+      <span class="step-prog">2 of 5</span>
       <button class="btn btn-orange" onclick="next(1)">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
   </div>
@@ -170,7 +171,7 @@
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
-      <span class="step-prog">3 of 4</span>
+      <span class="step-prog">3 of 5</span>
       <button class="btn btn-orange" onclick="next(2)">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
   </div>
@@ -201,7 +202,134 @@
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
-      <span class="step-prog">4 of 4</span>
+      <span class="step-prog">4 of 5</span>
+      <button class="btn btn-orange" onclick="next(3)">Continue <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Step 5: GMB Profile -->
+  <div class="card" id="card4">
+    <div class="card-head">
+      <div class="card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div><div class="card-title">Build Your Google Business Profile</div><div class="card-sub">Help patients discover you on Google Search and Maps</div></div>
+    </div>
+
+    <!-- SEO value prop banner -->
+    <div style="background:linear-gradient(135deg,rgba(77,217,217,.1),rgba(245,166,35,.08));border:1px solid var(--border);border-radius:var(--r-sm);padding:18px 20px;margin-bottom:26px;display:flex;gap:14px;align-items:flex-start">
+      <div style="width:40px;height:40px;background:var(--orange-pale);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div>
+        <div style="font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:5px">Our marketing team handles everything else</div>
+        <div style="font-size:12.5px;color:var(--text-mid);line-height:1.6">We use your details below to craft an SEO-optimised Google Business Profile — including the right business category, keyword-rich description, and service tags — so you appear higher when patients search for your speciality on Google Search and Maps.</div>
+      </div>
+    </div>
+
+    <div class="ibox" style="margin-bottom:22px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <p>We've pre-filled this from your earlier answers. Please review and correct if needed — our marketing team uses this to create and optimise your Google Business Profile.</p>
+    </div>
+
+    <div class="fg">
+
+      <div class="f span2">
+        <label class="lbl">Full Name <span class="req">*</span></label>
+        <input type="text" id="gmb_full_name" placeholder="Dr. Priya Sharma">
+        <span class="f-hint">As it should appear on your Google Business Profile</span>
+        <span class="f-err" id="e_gmb_full_name">Enter your full name</span>
+      </div>
+
+      <div class="f span2">
+        <label class="lbl">Qualifications <span class="req">*</span></label>
+        <input type="text" id="gmb_qualifications" placeholder="MBBS, MD – Dermatology">
+        <span class="f-err" id="e_gmb_qualifications">Enter your qualifications</span>
+      </div>
+
+      <div class="f">
+        <label class="lbl">Total Work Experience <span class="req">*</span></label>
+        <select id="gmb_experience">
+          <option value="">Select…</option>
+          <option>Less than 2 years</option>
+          <option>2–5 years</option>
+          <option>5–10 years</option>
+          <option>10–15 years</option>
+          <option>15–20 years</option>
+          <option>20+ years</option>
+        </select>
+        <span class="f-err" id="e_gmb_experience">Select your experience</span>
+      </div>
+
+      <div class="f">
+        <label class="lbl">Speciality <span class="req">*</span></label>
+        <select id="gmb_speciality">
+          <option value="">Select…</option>
+          <option>General Physician / Family Medicine</option>
+          <option>Obstetrics & Gynaecology</option>
+          <option>Dermatology & Cosmetology</option>
+          <option>Orthopaedics</option>
+          <option>Neurology</option>
+          <option>Cardiology</option>
+          <option>ENT Specialist</option>
+          <option>Psychiatry & Mental Health</option>
+          <option>Respiratory Medicine</option>
+          <option>Gastroenterology</option>
+          <option>Paediatrics</option>
+          <option>Dentistry</option>
+          <option>Physiotherapy</option>
+          <option>Oncology</option>
+          <option>Radiology</option>
+          <option>Other</option>
+        </select>
+        <span class="f-err" id="e_gmb_speciality">Select your speciality</span>
+      </div>
+
+      <!-- Home visits -->
+      <div class="f span2">
+        <label class="lbl">Do you provide home visits or office visits? <span class="req">*</span></label>
+        <p class="f-hint" style="margin-bottom:10px">If you visit patients, we'll set up a service area on your Google profile so nearby patients can find you.</p>
+        <div class="pills" id="homeVisitPills">
+          <label class="pill" onclick="pickPill(this,'homeVisitPills');toggleServiceArea(true)">
+            <input type="radio" name="home_visit" value="Yes">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Yes — I visit patients
+          </label>
+          <label class="pill" onclick="pickPill(this,'homeVisitPills');toggleServiceArea(false)">
+            <input type="radio" name="home_visit" value="No">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            No — patients come to me
+          </label>
+        </div>
+        <span class="f-err" id="e_home_visit">Please select an option</span>
+      </div>
+
+      <!-- Service area (shown if Yes) -->
+      <div class="f span2" id="serviceAreaWrap" style="display:none">
+        <label class="lbl">Areas You Cover <span class="opt">(optional)</span></label>
+        <input type="text" id="gmb_service_area" placeholder="e.g. Koramangala, Indiranagar, HSR Layout…">
+        <span class="f-hint">Comma-separated localities or PIN codes. We'll add these as your service area on Google.</span>
+      </div>
+
+      <!-- Terms notice -->
+      <div class="f span2">
+        <div style="background:var(--cream);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:14px 16px;font-size:12px;color:var(--text-muted);line-height:1.65">
+          By submitting, you agree to Google's
+          <a href="https://support.google.com/business/answer/9292476" target="_blank" style="color:var(--teal-dark);text-decoration:none;font-weight:600">Business Profile Terms of Service</a>.
+          Your profile data will be managed via
+          <a href="https://support.google.com/business?hl=en&p=bm_overview" target="_blank" style="color:var(--teal-dark);text-decoration:none;font-weight:600">Google Business Manager</a>.
+          The <a href="https://policies.google.com/privacy" target="_blank" style="color:var(--teal-dark);text-decoration:none;font-weight:600">Google Privacy Policy</a> describes how your data is handled.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-nav">
+      <button class="btn btn-ghost" onclick="prev(4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
+      <span class="step-prog">5 of 5</span>
       <button class="btn btn-teal btn-lg" id="submitBtn" onclick="submitForm()">
         <span id="submitTxt">Submit to Docube</span>
         <div class="spinner" id="submitSpinner"></div>
@@ -285,6 +413,13 @@ function validateStep(s) {
   } else if (s === 3) {
     const lang = getChecked('langChips').length > 0;
     document.getElementById('e_lang').classList.toggle('show', !lang); if (!lang) ok = false;
+  } else if (s === 4) {
+    ok &= vF('gmb_full_name','e_gmb_full_name', v => v.trim().length > 1);
+    ok &= vF('gmb_qualifications','e_gmb_qualifications', v => v.trim().length > 1);
+    ok &= vF('gmb_experience','e_gmb_experience', v => v !== '');
+    ok &= vF('gmb_speciality','e_gmb_speciality', v => v !== '');
+    const hv = document.querySelector('input[name="home_visit"]:checked');
+    document.getElementById('e_home_visit').classList.toggle('show', !hv); if (!hv) ok = false;
   }
   return !!ok;
 }
@@ -295,6 +430,17 @@ function next(s) {
   document.getElementById('card' + s).classList.remove('active');
   document.getElementById('card' + (s + 1)).classList.add('active');
   updateObSteps(s + 1); obStep = s + 1;
+  // Pre-fill GMB step from Step 1 values
+  if (s + 1 === 4) {
+    const nameVal = document.getElementById('f_name').value.trim();
+    const qualsVal = document.getElementById('f_quals').value.trim();
+    const expVal = document.getElementById('f_exp').value;
+    const specVal = document.getElementById('f_spec').value;
+    if (nameVal && !document.getElementById('gmb_full_name').value) document.getElementById('gmb_full_name').value = nameVal;
+    if (qualsVal && !document.getElementById('gmb_qualifications').value) document.getElementById('gmb_qualifications').value = qualsVal;
+    if (expVal && !document.getElementById('gmb_experience').value) document.getElementById('gmb_experience').value = expVal;
+    if (specVal && !document.getElementById('gmb_speciality').value) document.getElementById('gmb_speciality').value = specVal;
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function prev(s) {
@@ -312,7 +458,7 @@ function updateObSteps(a) {
 }
 
 async function submitForm() {
-  if (!validateStep(3)) return;
+  if (!validateStep(4)) return;
   const btn = document.getElementById('submitBtn');
   document.getElementById('submitTxt').textContent = 'Saving…';
   document.getElementById('submitSpinner').style.display = 'block';
@@ -343,11 +489,18 @@ async function submitForm() {
     bio: document.getElementById('f_bio').value.trim(),
     notes: document.getElementById('f_notes').value.trim(),
     existing_gmb: document.querySelector('input[name="gmb"]:checked')?.value,
+    // GMB Profile fields
+    gmb_full_name: document.getElementById('gmb_full_name').value.trim(),
+    gmb_qualifications: document.getElementById('gmb_qualifications').value.trim(),
+    gmb_experience: document.getElementById('gmb_experience').value,
+    gmb_speciality: document.getElementById('gmb_speciality').value,
+    gmb_home_visits: document.querySelector('input[name="home_visit"]:checked')?.value,
+    gmb_service_area: document.getElementById('gmb_service_area').value.trim(),
     gmb_status: 'pending'
   };
   try {
     await sbPost('doctor_profiles', data);
-    document.getElementById('card3').classList.remove('active');
+    document.getElementById('card4').classList.remove('active');
     document.getElementById('obSuccess').classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch(e) {
@@ -357,6 +510,10 @@ async function submitForm() {
     document.getElementById('submitIcon').style.display = 'block';
     btn.disabled = false;
   }
+}
+
+function toggleServiceArea(show) {
+  document.getElementById('serviceAreaWrap').style.display = show ? 'flex' : 'none';
 }
 </script>
 </body>
