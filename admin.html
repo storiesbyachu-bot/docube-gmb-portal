@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docube — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
+@media(max-width:700px){.admin-layout{grid-template-columns:1fr}}
+.admin-sidebar{background:var(--navy);padding:24px 0;border-right:1px solid rgba(255,255,255,.08)}
+.admin-sidebar-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:0 20px;margin-bottom:10px}
+.admin-nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .16s;border-left:3px solid transparent}
+.admin-nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.admin-nav-item.on{color:#fff;background:rgba(77,217,217,.1);border-left-color:var(--teal)}
+.admin-nav-item svg{width:16px;height:16px;flex-shrink:0}
+.admin-main{padding:28px 28px 60px;overflow-x:auto}
+@media(max-width:700px){.admin-sidebar{display:none}.admin-main{padding:20px 16px 60px}}
+.admin-page-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--navy);margin-bottom:4px}
+.admin-page-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.stat-val{font-size:28px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.stat-lbl{font-size:12px;color:var(--text-muted);font-weight:500}
+.stat-card.orange .stat-val{color:var(--orange)}
+.stat-card.teal .stat-val{color:var(--teal-dark)}
+.stat-card.green .stat-val{color:#1a9f7e}
+.admin-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.admin-filters select,.admin-filters input{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:var(--text);background:#fff;outline:none;min-width:140px}
+.admin-filters select:focus,.admin-filters input:focus{border-color:var(--teal-dark)}
+.admin-table-wrap{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)}
+.admin-table{width:100%;border-collapse:collapse;min-width:600px}
+.admin-table th{background:var(--cream);padding:11px 16px;font-size:11.5px;font-weight:700;color:var(--text-mid);text-align:left;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border-light)}
+.admin-table td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border-light);vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tr:hover td{background:var(--cream)}
+.admin-action-btn{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:none;transition:all .15s;margin-right:4px}
+.ab-teal{background:var(--teal-pale);color:var(--teal-dark);border:1px solid var(--border)}
+.ab-teal:hover{background:var(--teal-dark);color:#fff}
+.ab-orange{background:var(--orange-pale);color:var(--orange-dark);border:1px solid rgba(245,166,35,.25)}
+.ab-orange:hover{background:var(--orange);color:#fff}
+.ab-red{background:#fff1f1;color:#c43e3e;border:1px solid rgba(224,82,82,.2)}
+.ab-red:hover{background:#e05252;color:#fff}
+.ab-green{background:rgba(34,201,160,.1);color:#1a9f7e;border:1px solid rgba(34,201,160,.25)}
+.ab-green:hover{background:var(--success);color:#fff}
+.admin-section{display:none}
+.admin-section.on{display:block}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Done</span>
+</div>
+
+<nav class="topnav">
+  <a class="nav-logo" href="index.html">
+    <svg viewBox="0 0 44 22" fill="none">
+      <polyline points="0,11 5,11 7.5,4 10,18 12.5,7 15,14 18,11 22,11" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="25" y1="3" x2="25" y2="19" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="29" y1="1" x2="29" y2="21" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="33" y1="4" x2="33" y2="18" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="37" y1="7" x2="37" y2="15" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="41" y1="9" x2="41" y2="13" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-logo-text"><b>DOC</b>UBE</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <a class="nav-btn nav-btn-ghost" href="index.html">Our Doctors</a>
+  <a class="nav-btn nav-btn-admin" href="admin.html">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Admin
+  </a>
+  <a class="nav-btn nav-btn-orange" href="onboard.html">GMB Onboarding</a>
+</nav>
+
+<div class="admin-layout fadein">
+  <div class="admin-sidebar">
+    <div class="admin-sidebar-title">Admin Panel</div>
+    <div class="admin-nav-item on" onclick="adminTab('dashboard')" id="atab-dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </div>
+    <div class="admin-nav-item" onclick="adminTab('bookings')" id="atab-bookings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bookings
+    </div>
+    <div class="admin-nav-item" onclick="adminTab('doctors')" id="atab-doctors">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Doctors & GMB
+    </div>
+  </div>
+
+  <div class="admin-main">
+    <!-- Dashboard -->
+    <div class="admin-section on" id="asec-dashboard">
+      <div class="admin-page-title">Dashboard</div>
+      <div class="admin-page-sub">Overview of bookings and doctor onboarding</div>
+      <div class="admin-stat-grid">
+        <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Bookings</div></div>
+        <div class="stat-card orange"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">Pending Bookings</div></div>
+        <div class="stat-card teal"><div class="stat-val" id="stat-confirmed">—</div><div class="stat-lbl">Confirmed</div></div>
+        <div class="stat-card"><div class="stat-val" id="stat-doctors">—</div><div class="stat-lbl">Doctors Onboarded</div></div>
+        <div class="stat-card orange"><div class="stat-val" id="stat-gmb-pending">—</div><div class="stat-lbl">GMB Pending</div></div>
+        <div class="stat-card green"><div class="stat-val" id="stat-gmb-live">—</div><div class="stat-lbl">GMB Live</div></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Recent Bookings</div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Patient</th><th>Doctor</th><th>Date & Time</th><th>Center</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="recentBookingsTbl"><tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="admin-section" id="asec-bookings">
+      <div class="admin-page-title">All Bookings</div>
+      <div class="admin-page-sub">Manage and update booking statuses</div>
+      <div class="admin-filters">
+        <select id="bk-filter-status" onchange="loadAdminBookings()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select>
+        <select id="bk-filter-doctor" onchange="loadAdminBookings()"><option value="">All Doctors</option></select>
+        <input type="date" id="bk-filter-date" onchange="loadAdminBookings()">
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Patient</th><th>Phone</th><th>Doctor</th><th>Date</th><th>Time</th><th>Center</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="allBookingsTbl"><tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Doctors -->
+    <div class="admin-section" id="asec-doctors">
+      <div class="admin-page-title">Doctors & GMB Status</div>
+      <div class="admin-page-sub">Track GMB setup progress and manage doctor profiles</div>
+      <div class="admin-filters">
+        <select id="doc-filter-gmb" onchange="loadAdminDoctors()"><option value="">All GMB Statuses</option><option value="pending">Pending</option><option value="live">Live</option></select>
+        <select id="doc-filter-center" onchange="loadAdminDoctors()"><option value="">All Centers</option></select>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Phone</th><th>GMB Status</th><th>Profile</th><th>Actions</th></tr></thead>
+          <tbody id="allDoctorsTbl"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+function adminTab(tab) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('on'));
+  document.getElementById('asec-' + tab).classList.add('on');
+  document.getElementById('atab-' + tab).classList.add('on');
+  if (tab === 'bookings') loadAdminBookings();
+  if (tab === 'doctors') loadAdminDoctors();
+}
+
+async function loadDashboard() {
+  try {
+    const [bookings, doctors] = await Promise.all([
+      sbGet('bookings', 'select=status'),
+      sbGet('doctor_profiles', 'select=gmb_status')
+    ]);
+    document.getElementById('stat-total').textContent = bookings.length;
+    document.getElementById('stat-pending').textContent = bookings.filter(b => b.status === 'pending').length;
+    document.getElementById('stat-confirmed').textContent = bookings.filter(b => b.status === 'confirmed').length;
+    document.getElementById('stat-doctors').textContent = doctors.length;
+    document.getElementById('stat-gmb-pending').textContent = doctors.filter(d => d.gmb_status === 'pending').length;
+    document.getElementById('stat-gmb-live').textContent = doctors.filter(d => d.gmb_status === 'live').length;
+    const recent = await sbGet('bookings', 'select=*&order=created_at.desc&limit=8');
+    document.getElementById('recentBookingsTbl').innerHTML = recent.map(b => `
+      <tr>
+        <td><strong>${b.patient_name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${b.patient_phone}</span></td>
+        <td>${b.doctor_name}</td>
+        <td>${b.preferred_date}<br><span style="font-size:11px;color:var(--text-muted)">${formatTime(b.preferred_time)}</span></td>
+        <td style="font-size:12px">${(b.docube_center || '').replace('Docube Healthcare – ','')}</td>
+        <td><span class="badge badge-${b.status}">${b.status}</span></td>
+        <td>
+          ${b.status === 'pending' ? `<button class="admin-action-btn ab-green" onclick="updateBookingStatus('${b.id}','confirmed')">Confirm</button>` : ''}
+          ${b.status !== 'cancelled' ? `<button class="admin-action-btn ab-red" onclick="updateBookingStatus('${b.id}','cancelled')">Cancel</button>` : ''}
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No bookings yet</td></tr>';
+  } catch(e) {}
+}
+
+async function loadAdminBookings() {
+  const statusFilter = document.getElementById('bk-filter-status')?.value || '';
+  const doctorFilter = document.getElementById('bk-filter-doctor')?.value || '';
+  const dateFilter   = document.getElementById('bk-filter-date')?.value || '';
+  let params = 'select=*&order=created_at.desc';
+  if (statusFilter) params += `&status=eq.${statusFilter}`;
+  if (doctorFilter) params += `&doctor_id=eq.${doctorFilter}`;
+  if (dateFilter)   params += `&preferred_date=eq.${dateFilter}`;
+  try {
+    const [bookings, docs] = await Promise.all([
+      sbGet('bookings', params),
+      sbGet('doctor_profiles', 'select=id,full_name&order=full_name.asc')
+    ]);
+    const sel = document.getElementById('bk-filter-doctor');
+    const curVal = sel.value;
+    sel.innerHTML = '<option value="">All Doctors</option>' + docs.map(d => `<option value="${d.id}" ${curVal === d.id ? 'selected' : ''}>${d.full_name}</option>`).join('');
+    document.getElementById('allBookingsTbl').innerHTML = bookings.map(b => `
+      <tr>
+        <td><strong>${b.patient_name}</strong></td>
+        <td>${b.patient_phone}</td>
+        <td>${b.doctor_name}</td>
+        <td>${b.preferred_date}</td>
+        <td>${formatTime(b.preferred_time)}</td>
+        <td style="font-size:12px">${(b.docube_center || '').replace('Docube Healthcare – ','')}</td>
+        <td><span class="badge badge-${b.status}">${b.status}</span></td>
+        <td>
+          ${b.status === 'pending' ? `<button class="admin-action-btn ab-green" onclick="updateBookingStatus('${b.id}','confirmed')">✓ Confirm</button>` : ''}
+          ${b.status === 'confirmed' ? `<button class="admin-action-btn ab-teal" onclick="updateBookingStatus('${b.id}','pending')">Reopen</button>` : ''}
+          ${b.status !== 'cancelled' ? `<button class="admin-action-btn ab-red" onclick="updateBookingStatus('${b.id}','cancelled')">✕ Cancel</button>` : ''}
+        </td>
+      </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted)">No bookings found</td></tr>';
+  } catch(e) {}
+}
+
+async function loadAdminDoctors() {
+  const gmbFilter    = document.getElementById('doc-filter-gmb')?.value || '';
+  const centerFilter = document.getElementById('doc-filter-center')?.value || '';
+  let params = 'select=*&order=created_at.desc';
+  if (gmbFilter)    params += `&gmb_status=eq.${gmbFilter}`;
+  if (centerFilter) params += `&docube_center=eq.${encodeURIComponent(centerFilter)}`;
+  try {
+    const [doctors, allDocs] = await Promise.all([
+      sbGet('doctor_profiles', params),
+      sbGet('doctor_profiles', 'select=docube_center')
+    ]);
+    const centers = [...new Set(allDocs.map(d => d.docube_center).filter(Boolean))];
+    const sel = document.getElementById('doc-filter-center');
+    const curVal = sel.value;
+    sel.innerHTML = '<option value="">All Centers</option>' + centers.map(c => `<option value="${c}" ${curVal === c ? 'selected' : ''}>${c.replace('Docube Healthcare – ','')}</option>`).join('');
+    const profileBase = location.origin + location.pathname.replace('admin.html','') + 'profile.html';
+    document.getElementById('allDoctorsTbl').innerHTML = doctors.map(d => `
+      <tr>
+        <td><strong>${d.full_name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${d.email || ''}</span></td>
+        <td>${d.speciality}</td>
+        <td style="font-size:12px">${(d.docube_center || '').replace('Docube Healthcare – ','')}</td>
+        <td style="font-size:12px">${d.phone || d.clinic_phone || '—'}</td>
+        <td><span class="badge badge-${d.gmb_status || 'pending'}">${d.gmb_status || 'pending'}</span></td>
+        <td>
+          <button class="admin-action-btn ab-teal" onclick="copyLink('${profileBase}?doctor=${d.id}')">Copy Link</button>
+          <a class="admin-action-btn ab-teal" href="profile.html?doctor=${d.id}" target="_blank">View</a>
+        </td>
+        <td>
+          ${d.gmb_status !== 'live' ? `<button class="admin-action-btn ab-green" onclick="updateGmbStatus('${d.id}','live')">Set Live</button>` : ''}
+          ${d.gmb_status === 'live' ? `<button class="admin-action-btn ab-orange" onclick="updateGmbStatus('${d.id}','pending')">Set Pending</button>` : ''}
+          <button class="admin-action-btn ab-red" onclick="deleteDoctor('${d.id}')">Delete</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">No doctors found</td></tr>';
+  } catch(e) { console.error(e); }
+}
+
+async function updateBookingStatus(id, status) {
+  try {
+    await sbPatch('bookings', `id=eq.${id}`, { status });
+    toast(`Booking ${status}!`);
+    await loadDashboard();
+    await loadAdminBookings();
+  } catch(e) { toast('Update failed', 'error'); }
+}
+
+async function updateGmbStatus(id, status) {
+  try {
+    await sbPatch('doctor_profiles', `id=eq.${id}`, { gmb_status: status });
+    toast(`GMB status set to ${status}!`);
+    await loadAdminDoctors(); await loadDashboard();
+  } catch(e) { toast('Update failed', 'error'); }
+}
+
+async function deleteDoctor(id) {
+  if (!confirm('Delete this doctor profile? This cannot be undone.')) return;
+  try {
+    await sbDel('doctor_profiles', `id=eq.${id}`);
+    toast('Doctor deleted.');
+    await loadAdminDoctors(); await loadDashboard();
+  } catch(e) { toast('Delete failed', 'error'); }
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(() => toast('Profile link copied!')).catch(() => { prompt('Copy this link:', url); });
+}
+
+// Init
+loadDashboard();
+</script>
+</body>
+</html>
