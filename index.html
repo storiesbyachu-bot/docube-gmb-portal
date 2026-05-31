@@ -734,7 +734,7 @@ const sc = document.getElementById('servChips');
 SERVICES.forEach(s => {
   const c = document.createElement('label');
   c.className = 'chip'; c.innerHTML = `<input type="checkbox" value="${s}"><div class="chip-box"><svg class="chip-ck" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="chip-lbl">${s}</span>`;
-  c.onclick = () => c.classList.toggle('on');
+  c.querySelector('input').addEventListener('change', () => c.classList.toggle('on', c.querySelector('input').checked));
   sc.appendChild(c);
 });
 
@@ -743,7 +743,7 @@ const lc = document.getElementById('langChips');
 LANGS.forEach(l => {
   const c = document.createElement('label');
   c.className = 'chip'; c.innerHTML = `<input type="checkbox" value="${l}"><div class="chip-box"><svg class="chip-ck" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="chip-lbl">${l}</span>`;
-  c.onclick = () => c.classList.toggle('on');
+  c.querySelector('input').addEventListener('change', () => c.classList.toggle('on', c.querySelector('input').checked));
   lc.appendChild(c);
 });
 
