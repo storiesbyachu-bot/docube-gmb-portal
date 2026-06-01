@@ -336,20 +336,33 @@ function buildHoursWrap(existing) {
   return DAYS.map(d => {
     const ex = existing.find(h => h.day === d);
     const closed = ex ? ex.closed : d === 'Sunday';
-    const open = ex?.open || '09:00';
-    const close = ex?.close || '18:00';
-    return `<div class="hour-row${closed?' is-closed':''}" id="nh-hr-${d}">
-      <div class="day-lbl">${d.slice(0,3)}</div>
-      <input type="time" id="nh-ho-${d}" value="${open}" ${closed?'tabindex="-1"':''}>
-      <div class="hr-sep">–</div>
-      <input type="time" id="nh-hc-${d}" value="${close}" ${closed?'tabindex="-1"':''}>
-      <div class="closed-w">
-        <input type="checkbox" id="nh-hx-${d}" ${closed?'checked':''}>
-        <label class="closed-lbl" for="nh-hx-${d}">Closed</label>
+    const open1 = ex?.open || '09:00';
+    const close1 = ex?.close || '18:00';
+    const hasSlot2 = !!(ex?.open2 && ex?.close2);
+    return `<div class="hour-row${closed?' is-closed':''}${hasSlot2?' has-slot2':''}" id="nh-hr-${d}" style="background:var(--cream);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:9px 12px;margin-bottom:5px">
+      <div style="display:grid;grid-template-columns:72px 1fr 12px 1fr 86px auto;align-items:center;gap:7px">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">${d.slice(0,3)}</div>
+        <input type="time" id="nh-ho-${d}" value="${open1}" ${closed?'tabindex="-1"':''}>
+        <div style="text-align:center;color:var(--text-muted);font-size:11px">–</div>
+        <input type="time" id="nh-hc-${d}" value="${close1}" ${closed?'tabindex="-1"':''}>
+        <div style="display:flex;align-items:center;gap:5px;justify-content:flex-end">
+          <input type="checkbox" id="nh-hx-${d}" ${closed?'checked':''} style="width:14px;height:14px;accent-color:var(--teal-dark)">
+          <label style="font-size:11px;color:var(--text-muted)" for="nh-hx-${d}">Closed</label>
+        </div>
+        <button type="button" onclick="nhToggleSlot2('${d}')" id="nh-addslot-${d}" style="font-size:11px;color:var(--teal-dark);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;text-decoration:underline;white-space:nowrap" ${closed?'style="display:none"':''}>+ Evening</button>
+      </div>
+      <div id="nh-slot2-${d}" style="display:${hasSlot2?'grid':'none'};grid-template-columns:72px 1fr 12px 1fr auto;align-items:center;gap:7px;margin-top:6px;padding-top:6px;border-top:1px dashed var(--border)">
+        <div style="font-size:11px;color:var(--text-muted);font-style:italic">Slot 2</div>
+        <input type="time" id="nh-ho2-${d}" value="${ex?.open2||'16:00'}">
+        <div style="text-align:center;color:var(--text-muted);font-size:11px">–</div>
+        <input type="time" id="nh-hc2-${d}" value="${ex?.close2||'21:00'}">
+        <button type="button" onclick="nhRemoveSlot2('${d}')" style="color:#e05252;background:none;border:none;cursor:pointer;font-size:13px;padding:0">✕</button>
       </div>
     </div>`;
   }).join('');
 }
+function nhToggleSlot2(d) { document.getElementById(`nh-slot2-${d}`).style.display='grid'; document.getElementById(`nh-addslot-${d}`).style.display='none'; }
+function nhRemoveSlot2(d) { document.getElementById(`nh-slot2-${d}`).style.display='none'; document.getElementById(`nh-addslot-${d}`).style.display=''; }
 
 function pickPill(el, groupId) {
   document.querySelectorAll(`#${groupId} .pill`).forEach(p => p.classList.remove('on'));
@@ -374,7 +387,19 @@ function gatherNewValue(type) {
     };
     case 'hours': return {
       old: hours,
-      new: DAYS.map(d => ({ day: d, open: document.getElementById(`nh-ho-${d}`)?.value||'09:00', close: document.getElementById(`nh-hc-${d}`)?.value||'18:00', closed: document.getElementById(`nh-hx-${d}`)?.checked||false }))
+      new: DAYS.map(d => {
+        const slot2Visible = document.getElementById(`nh-slot2-${d}`)?.style.display === 'grid';
+        return {
+          day: d,
+          open: document.getElementById(`nh-ho-${d}`)?.value || '09:00',
+          close: document.getElementById(`nh-hc-${d}`)?.value || '18:00',
+          closed: document.getElementById(`nh-hx-${d}`)?.checked || false,
+          ...(slot2Visible && {
+            open2: document.getElementById(`nh-ho2-${d}`)?.value || '16:00',
+            close2: document.getElementById(`nh-hc2-${d}`)?.value || '21:00'
+          })
+        };
+      })
     };
     case 'services': return {
       old: services,
