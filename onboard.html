@@ -619,25 +619,25 @@ async function submitForm() {
 
     // Step 3 — Hours & Services
     consultation_hours:   JSON.stringify(hours),
-    appointment_type:     document.querySelector('input[name="appt"]:checked')?.value || '',
-    fee_range:            document.querySelector('input[name="fee"]:checked')?.value || '',
+    appointment_type:     document.querySelector('input[name="appt"]:checked')?.value || null,
+    fee_range:            document.querySelector('input[name="fee"]:checked')?.value || null,
     services:             JSON.stringify(services),
 
     // Step 4 — Languages, Bio, GMB status
     languages:            JSON.stringify(languages),
-    bio:                  document.getElementById('f_bio').value.trim(),
-    notes:                document.getElementById('f_notes').value.trim(),
-    existing_gmb:         document.querySelector('input[name="gmb"]:checked')?.value || '',
-    gmb_existing_link:    document.getElementById('gmb_existing_link').value.trim(),
-    gmb_access_confirmed: document.querySelector('input[name="gmb_access_confirmed"]:checked')?.value || '',
+    bio:                  document.getElementById('f_bio').value.trim() || null,
+    notes:                document.getElementById('f_notes').value.trim() || null,
+    existing_gmb:         document.querySelector('input[name="gmb"]:checked')?.value || null,
+    gmb_existing_link:    document.getElementById('gmb_existing_link').value.trim() || null,
+    gmb_access_confirmed: document.querySelector('input[name="gmb_access_confirmed"]:checked')?.value || null,
 
     // Step 5 — GMB Profile info
-    gmb_full_name:        document.getElementById('gmb_full_name').value.trim(),
-    gmb_qualifications:   document.getElementById('gmb_qualifications').value.trim(),
-    gmb_experience:       document.getElementById('gmb_experience').value,
-    gmb_speciality:       resolveOther('gmb_speciality', 'gmb_speciality_other'),
-    gmb_home_visits:      document.querySelector('input[name="home_visit"]:checked')?.value || '',
-    gmb_service_area:     document.getElementById('gmb_service_area').value.trim(),
+    gmb_full_name:        document.getElementById('gmb_full_name').value.trim() || null,
+    gmb_qualifications:   document.getElementById('gmb_qualifications').value.trim() || null,
+    gmb_experience:       document.getElementById('gmb_experience').value || null,
+    gmb_speciality:       resolveOther('gmb_speciality', 'gmb_speciality_other') || null,
+    gmb_home_visits:      document.querySelector('input[name="home_visit"]:checked')?.value || null,
+    gmb_service_area:     document.getElementById('gmb_service_area').value.trim() || null,
 
     gmb_status:           'pending'
   };
