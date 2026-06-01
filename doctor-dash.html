@@ -1,0 +1,743 @@
+x<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docube — Doctor Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* Layout */
+.dash-layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 56px)}
+@media(max-width:720px){.dash-layout{grid-template-columns:1fr}}
+.dash-sidebar{background:var(--navy);padding:24px 0;border-right:1px solid rgba(255,255,255,.08)}
+@media(max-width:720px){.dash-sidebar{display:none}}
+.sidebar-doc{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:12px}
+.sidebar-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(77,217,217,.4),rgba(77,217,217,.2));border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:20px;color:var(--navy);margin-bottom:10px}
+.sidebar-name{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px}
+.sidebar-spec{font-size:11.5px;color:rgba(255,255,255,.45)}
+.sidebar-gmb{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 9px;border-radius:20px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.sidebar-section-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:0 20px;margin:12px 0 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .16s;border-left:3px solid transparent;text-decoration:none}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.on{color:#fff;background:rgba(77,217,217,.1);border-left-color:var(--teal)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0}
+.nav-item-badge{margin-left:auto;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+
+/* Main */
+.dash-main{padding:28px;overflow-x:hidden}
+@media(max-width:560px){.dash-main{padding:18px 16px}}
+.dash-section{display:none}
+.dash-section.on{display:block}
+
+/* Header */
+.dash-header{margin-bottom:22px}
+.dash-header h1{font-family:'Instrument Serif',serif;font-size:26px;color:var(--navy);margin-bottom:3px}
+.dash-header p{font-size:13px;color:var(--text-muted)}
+
+/* Stats */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.stat-val{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:2px}
+.stat-lbl{font-size:11.5px;color:var(--text-muted)}
+.stat-card.teal .stat-val{color:var(--teal-dark)}
+.stat-card.orange .stat-val{color:var(--orange)}
+
+/* Appointments */
+.appt-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.appt-filters select,.appt-filters input{padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:12.5px;color:var(--text);background:#fff;outline:none}
+.appt-filters select:focus,.appt-filters input:focus{border-color:var(--teal-dark)}
+.appt-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:16px 20px;margin-bottom:10px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.appt-info{flex:1;min-width:160px}
+.appt-patient{font-size:14.5px;font-weight:700;color:var(--navy)}
+.appt-detail{font-size:12px;color:var(--text-muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:8px}
+.appt-detail span{display:flex;align-items:center;gap:4px}
+.appt-detail svg{width:12px;height:12px;color:var(--teal-dark)}
+.appt-actions{display:flex;gap:7px;flex-wrap:wrap}
+.appt-actions .btn{padding:7px 14px;font-size:12.5px}
+.badge-rescheduled{background:rgba(77,217,217,.15);color:var(--teal-dark);border:1px solid rgba(77,217,217,.3)}
+
+/* GMB Status tracker */
+.gmb-tracker{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:22px}
+.gmb-tracker-title{font-size:13px;font-weight:700;color:var(--text-mid);letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px}
+.gmb-pipeline{display:flex;gap:0;position:relative}
+.gmb-pipeline::before{content:'';position:absolute;top:18px;left:18px;right:18px;height:2px;background:var(--border-light);z-index:0}
+.gmb-stage{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.gmb-dot{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:8px;transition:all .3s}
+.gmb-dot svg{width:16px;height:16px;color:var(--text-muted)}
+.gmb-stage.done .gmb-dot{background:var(--teal-dark);border-color:var(--teal-dark)}
+.gmb-stage.done .gmb-dot svg{color:#fff}
+.gmb-stage.active .gmb-dot{background:var(--orange);border-color:var(--orange);box-shadow:0 0 0 4px rgba(245,166,35,.2)}
+.gmb-stage.active .gmb-dot svg{color:#fff}
+.gmb-stage-label{font-size:11px;font-weight:600;color:var(--text-muted);text-align:center;max-width:70px}
+.gmb-stage.done .gmb-stage-label,.gmb-stage.active .gmb-stage-label{color:var(--navy)}
+.gmb-pipeline-line{position:absolute;top:18px;left:18px;height:2px;background:var(--teal-dark);z-index:0;transition:width .5s}
+
+/* Tickets */
+.ticket-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:16px 20px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.ticket-type{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.ticket-desc{font-size:13px;color:var(--text-mid);line-height:1.55;margin-bottom:8px}
+.ticket-meta{font-size:11.5px;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap}
+.badge-open{background:rgba(245,166,35,.12);color:var(--orange-dark);border:1px solid rgba(245,166,35,.25)}
+.badge-resolved{background:rgba(34,201,160,.12);color:#1a9f7e;border:1px solid rgba(34,201,160,.25)}
+
+/* Edit profile */
+.edit-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm)}
+.edit-section-title{font-size:12px;font-weight:700;color:var(--text-mid);letter-spacing:.06em;text-transform:uppercase;margin:22px 0 14px;padding-top:20px;border-top:1px solid var(--border-light)}
+.edit-section-title:first-child{margin-top:0;padding-top:0;border-top:none}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(11,31,53,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--r);padding:28px;max-width:480px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;position:relative}
+.modal-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text-muted);font-family:inherit}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-nav-btn{background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:inherit;font-size:12.5px;color:var(--text-mid);transition:all .15s}
+.cal-nav-btn:hover{border-color:var(--teal-dark);color:var(--teal-dark)}
+.cal-month{font-size:13.5px;font-weight:700;color:var(--text)}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.cal-head .dh{font-size:9.5px;font-weight:700;color:var(--text-muted);text-align:center;padding:2px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.date-btn{padding:7px 2px;text-align:center;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;border:1.5px solid transparent;background:var(--cream);color:var(--text);transition:all .13s;width:100%}
+.date-btn:hover:not([disabled]){border-color:var(--teal-dark);background:var(--teal-pale)}
+.date-btn.selected{background:var(--orange);color:#fff;border-color:var(--orange);font-weight:700}
+.date-btn.today{border-color:var(--teal);color:var(--teal-dark);font-weight:700}
+.date-btn[disabled]{opacity:.3;cursor:not-allowed}
+.date-btn.empty{background:transparent;border:none;cursor:default}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:6px;margin-top:10px}
+.slot-btn{padding:8px 4px;text-align:center;border:1.5px solid var(--border);border-radius:7px;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:500;background:#fff;color:var(--text);transition:all .13s}
+.slot-btn:hover:not(.unavail){border-color:var(--teal-dark);background:var(--teal-pale)}
+.slot-btn.selected{background:var(--teal-dark);color:#fff;border-color:var(--teal-dark);font-weight:700}
+.slot-btn.unavail{opacity:.3;cursor:not-allowed;text-decoration:line-through}
+
+/* Mobile nav */
+.mobile-nav{display:none;background:#fff;border-top:1px solid var(--border-light);position:fixed;bottom:0;left:0;right:0;z-index:100;padding:8px 0 env(safe-area-inset-bottom)}
+@media(max-width:720px){.mobile-nav{display:flex}}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;color:var(--text-muted);font-size:10px;font-weight:600;border:none;background:transparent;font-family:inherit;transition:color .15s}
+.mobile-nav-item svg{width:20px;height:20px}
+.mobile-nav-item.on{color:var(--teal-dark)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- Reschedule Modal -->
+<div class="modal-overlay" id="rsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('rsModal')">✕</button>
+    <div class="modal-title">Reschedule Appointment</div>
+    <div class="modal-sub" id="rsModalSub"></div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="rsChangeMonth(-1)">← Prev</button>
+      <div class="cal-month" id="rsCalMonth"></div>
+      <button class="cal-nav-btn" onclick="rsChangeMonth(1)">Next →</button>
+    </div>
+    <div class="cal-head" id="rsCalHead"></div>
+    <div class="cal-grid" id="rsCalGrid"></div>
+    <div id="rsSlotWrap" style="margin-top:14px;display:none">
+      <div style="font-size:11.5px;font-weight:700;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px" id="rsSlotLbl"></div>
+      <p style="font-size:12px;color:var(--text-muted)" id="rsSlotLoading" style="display:none">Checking availability…</p>
+      <div class="slot-grid" id="rsSlotGrid"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-light)">
+      <button class="btn btn-ghost" onclick="closeModal('rsModal')">Cancel</button>
+      <button class="btn btn-orange" id="rsConfirmBtn" onclick="confirmReschedule()" disabled>Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- GMB Ticket Modal -->
+<div class="modal-overlay" id="ticketModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('ticketModal')">✕</button>
+    <div class="modal-title">Request GMB Change</div>
+    <div class="modal-sub">The Docube team will review and action your request within 2 business days.</div>
+    <div class="fg one">
+      <div class="f">
+        <label class="lbl">Request Type <span class="req">*</span></label>
+        <select id="tk_type">
+          <option value="">Select…</option>
+          <option>Update Business Name</option>
+          <option>Update Address</option>
+          <option>Update Phone Number</option>
+          <option>Update Working Hours</option>
+          <option>Add / Update Photos</option>
+          <option>Update Services</option>
+          <option>Respond to a Review</option>
+          <option>Other</option>
+        </select>
+        <span class="f-err" id="e_tk_type">Select a request type</span>
+      </div>
+      <div class="f">
+        <label class="lbl">Description <span class="req">*</span></label>
+        <textarea id="tk_desc" rows="3" placeholder="Describe what needs to be changed on your GMB profile…"></textarea>
+        <span class="f-err" id="e_tk_desc">Enter a description</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">
+      <button class="btn btn-ghost" onclick="closeModal('ticketModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="submitTicket()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<nav class="topnav">
+  <a class="nav-logo" href="index.html">
+    <svg viewBox="0 0 44 22" fill="none">
+      <polyline points="0,11 5,11 7.5,4 10,18 12.5,7 15,14 18,11 22,11" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="25" y1="3" x2="25" y2="19" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="29" y1="1" x2="29" y2="21" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="33" y1="4" x2="33" y2="18" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="37" y1="7" x2="37" y2="15" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="41" y1="9" x2="41" y2="13" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-logo-text"><b>DOC</b>UBE</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <a class="nav-btn nav-btn-ghost" href="index.html" style="font-size:12px">View Profile</a>
+  <button class="nav-btn nav-btn-admin" onclick="logout()">Logout</button>
+</nav>
+
+<div class="dash-layout">
+
+  <!-- Sidebar -->
+  <div class="dash-sidebar">
+    <div class="sidebar-doc">
+      <div class="sidebar-avatar" id="sideAvatar">D</div>
+      <div class="sidebar-name" id="sideName">Doctor</div>
+      <div class="sidebar-spec" id="sideSpec"></div>
+      <div class="sidebar-gmb badge" id="sideGmb"></div>
+    </div>
+    <div class="sidebar-section-title">Menu</div>
+    <div class="nav-item on" onclick="switchSection('appointments')" id="navAppts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Appointments
+      <span class="nav-item-badge" id="pendingBadge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="switchSection('gmb')" id="navGmb">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      GMB Profile
+    </div>
+    <div class="nav-item" onclick="switchSection('profile')" id="navProfile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Edit Profile
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="dash-main">
+
+    <!-- ── APPOINTMENTS ── -->
+    <div class="dash-section on" id="sec-appointments">
+      <div class="dash-header">
+        <h1 id="dashTitle">Good morning</h1>
+        <p id="dashSub">Here are your upcoming appointments</p>
+      </div>
+      <div class="stat-row" id="statRow"></div>
+      <div class="appt-filters">
+        <select id="af_status" onchange="loadAppointments()">
+          <option value="">All Statuses</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rescheduled">Rescheduled</option>
+          <option value="pending">Pending</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <input type="date" id="af_date" onchange="loadAppointments()">
+      </div>
+      <div id="apptList"><div style="text-align:center;padding:40px;color:var(--text-muted)"><div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px"></div>Loading…</div></div>
+    </div>
+
+    <!-- ── GMB ── -->
+    <div class="dash-section" id="sec-gmb">
+      <div class="dash-header">
+        <h1>GMB Profile</h1>
+        <p>Track your Google Business Profile status and request changes</p>
+      </div>
+
+      <!-- Status tracker -->
+      <div class="gmb-tracker">
+        <div class="gmb-tracker-title">Profile Setup Progress</div>
+        <div class="gmb-pipeline" id="gmbPipeline">
+          <div style="position:absolute;top:18px;left:18px;height:2px;background:var(--teal-dark);z-index:0;transition:width .5s" id="gmbProgressLine"></div>
+          <div class="gmb-stage" id="gmbStage0">
+            <div class="gmb-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div class="gmb-stage-label">Submitted</div>
+          </div>
+          <div class="gmb-stage" id="gmbStage1">
+            <div class="gmb-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="gmb-stage-label">Under Review</div>
+          </div>
+          <div class="gmb-stage" id="gmbStage2">
+            <div class="gmb-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <div class="gmb-stage-label">Optimised</div>
+          </div>
+          <div class="gmb-stage" id="gmbStage3">
+            <div class="gmb-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="gmb-stage-label">Live on Google</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tickets -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px">Change Requests</div>
+          <div style="font-size:12.5px;color:var(--text-muted)">Ask the Docube team to update your Google Business Profile</div>
+        </div>
+        <button class="btn btn-orange" onclick="openModal('ticketModal')">+ New Request</button>
+      </div>
+      <div id="ticketList"><div style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</div></div>
+    </div>
+
+    <!-- ── EDIT PROFILE ── -->
+    <div class="dash-section" id="sec-profile">
+      <div class="dash-header">
+        <h1>Edit Profile</h1>
+        <p>Changes here update your doctor profile page and booking system. GMB changes go via the GMB tab.</p>
+      </div>
+      <div class="edit-card">
+        <div class="edit-section-title">Personal Info</div>
+        <div class="fg">
+          <div class="f"><label class="lbl">Full Name</label><input type="text" id="ep_name"></div>
+          <div class="f"><label class="lbl">Speciality</label>
+            <select id="ep_spec">
+              <option value="">Select…</option>
+              <option>General Physician / Family Medicine</option><option>Obstetrics & Gynaecology</option>
+              <option>Dermatology & Cosmetology</option><option>Orthopaedics</option><option>Neurology</option>
+              <option>Cardiology</option><option>ENT Specialist</option><option>Psychiatry & Mental Health</option>
+              <option>Respiratory Medicine</option><option>Gastroenterology</option><option>Paediatrics</option>
+              <option>Dentistry</option><option>Physiotherapy</option><option>Oncology</option><option>Radiology</option><option>Other</option>
+            </select>
+          </div>
+          <div class="f"><label class="lbl">Qualifications</label><input type="text" id="ep_quals"></div>
+          <div class="f"><label class="lbl">Experience</label>
+            <select id="ep_exp"><option value="">Select…</option><option>Less than 2 years</option><option>2–5 years</option><option>5–10 years</option><option>10–15 years</option><option>15–20 years</option><option>20+ years</option></select>
+          </div>
+          <div class="f"><label class="lbl">Mobile</label><input type="tel" id="ep_phone"></div>
+          <div class="f"><label class="lbl">WhatsApp</label><input type="tel" id="ep_wa"></div>
+          <div class="f span2"><label class="lbl">Email</label><input type="email" id="ep_email"></div>
+          <div class="f span2"><label class="lbl">Short Bio</label><textarea id="ep_bio" rows="3"></textarea></div>
+        </div>
+        <div class="edit-section-title">Consultation</div>
+        <div class="fg">
+          <div class="f span2"><label class="lbl">Fee Range</label>
+            <div class="pills" id="ep_feePills" style="margin-top:4px">
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="Under ₹300">Under ₹300</label>
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="₹300–₹600">₹300–₹600</label>
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="₹600–₹1000">₹600–₹1000</label>
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="₹1000–₹1500">₹1000–₹1500</label>
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="Above ₹1500">Above ₹1500</label>
+              <label class="pill" onclick="pickPill(this,'ep_feePills')"><input type="radio" name="ep_fee" value="Prefer not to say">Prefer not to say</label>
+            </div>
+          </div>
+          <div class="f span2"><label class="lbl">Consultation Hours</label><div class="hours-wrap" id="ep_hours"></div></div>
+        </div>
+        <div class="edit-section-title">Languages</div>
+        <div class="chips langs" id="ep_langs"></div>
+        <div style="margin-top:22px;display:flex;justify-content:flex-end;gap:10px">
+          <button class="btn btn-teal btn-lg" onclick="saveProfile()">
+            <span id="epSaveTxt">Save Changes</span>
+            <div class="spinner" id="epSpinner"></div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mobile bottom nav -->
+<div class="mobile-nav">
+  <button class="mobile-nav-item on" onclick="switchSection('appointments')" id="mNavAppts">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Appointments
+  </button>
+  <button class="mobile-nav-item" onclick="switchSection('gmb')" id="mNavGmb">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    GMB
+  </button>
+  <button class="mobile-nav-item" onclick="switchSection('profile')" id="mNavProfile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </button>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const LANGS = ['English','Kannada','Hindi','Tamil','Telugu','Malayalam'];
+let doctor = null;
+
+// ── INIT ──
+function init() {
+  const saved = localStorage.getItem('docube_doctor');
+  if (!saved) { location.href = 'auth.html'; return; }
+  doctor = JSON.parse(saved);
+  populateSidebar();
+  loadAppointments();
+  loadGmbSection();
+  populateEditProfile();
+}
+
+function populateSidebar() {
+  document.getElementById('sideAvatar').textContent = initials(doctor.full_name);
+  document.getElementById('sideName').textContent = doctor.full_name || 'Doctor';
+  document.getElementById('sideSpec').textContent = doctor.speciality || '';
+  const gmb = document.getElementById('sideGmb');
+  gmb.textContent = doctor.gmb_status === 'live' ? 'GMB Live' : 'GMB Pending';
+  gmb.className = `sidebar-gmb badge badge-${doctor.gmb_status === 'live' ? 'live' : 'pending'}`;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dashTitle').textContent = `${greeting}, ${(doctor.full_name || 'Doctor').replace(/^Dr\.?\s*/i, '')}`;
+}
+
+// ── NAV ──
+function switchSection(id) {
+  document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+  document.querySelectorAll('.mobile-nav-item').forEach(n => n.classList.remove('on'));
+  document.getElementById('sec-' + id).classList.add('on');
+  document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.add('on');
+  document.getElementById('mNav' + id.charAt(0).toUpperCase() + id.slice(1))?.classList.add('on');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+function logout() {
+  localStorage.removeItem('docube_doctor');
+  location.href = 'auth.html';
+}
+
+// ── APPOINTMENTS ──
+async function loadAppointments() {
+  if (!doctor) return;
+  const sf = document.getElementById('af_status')?.value || '';
+  const df = document.getElementById('af_date')?.value || '';
+  let params = `doctor_id=eq.${doctor.id}&select=*&order=preferred_date.desc,preferred_time.desc`;
+  if (sf) params += `&status=eq.${sf}`;
+  if (df) params += `&preferred_date=eq.${df}`;
+  const list = document.getElementById('apptList');
+  try {
+    const bks = await sbGet('bookings', params);
+    // Stats
+    const all = await sbGet('bookings', `doctor_id=eq.${doctor.id}&select=status`);
+    const confirmed = all.filter(b => b.status === 'confirmed').length;
+    const pending = all.filter(b => b.status === 'pending').length;
+    const rescheduled = all.filter(b => b.status === 'rescheduled').length;
+    document.getElementById('statRow').innerHTML = `
+      <div class="stat-card"><div class="stat-val">${all.length}</div><div class="stat-lbl">Total Bookings</div></div>
+      <div class="stat-card teal"><div class="stat-val">${confirmed}</div><div class="stat-lbl">Confirmed</div></div>
+      <div class="stat-card orange"><div class="stat-val">${pending + rescheduled}</div><div class="stat-lbl">Needs Attention</div></div>`;
+    if (pending > 0) {
+      document.getElementById('pendingBadge').style.display = 'inline';
+      document.getElementById('pendingBadge').textContent = pending;
+    }
+    if (!bks.length) {
+      list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No appointments found.</div>';
+      return;
+    }
+    list.innerHTML = bks.map(b => {
+      const d = new Date(b.preferred_date + 'T00:00:00');
+      const canAct = b.status !== 'cancelled';
+      return `<div class="appt-card">
+        <div class="appt-info">
+          <div class="appt-patient">${b.patient_name}</div>
+          <div class="appt-detail">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' })}</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatTime(b.preferred_time)}</span>
+            <span>${b.patient_phone}</span>
+            ${b.reason ? `<span style="font-style:italic">"${b.reason}"</span>` : ''}
+          </div>
+        </div>
+        <span class="badge badge-${b.status}">${b.status}</span>
+        ${canAct ? `<div class="appt-actions">
+          <button class="btn btn-ghost" onclick="openReschedule('${b.id}','${b.doctor_id}','${b.doctor_name}','${b.preferred_date}','${b.preferred_time}')">Reschedule</button>
+          <button class="btn btn-ghost" style="color:var(--error);border-color:rgba(224,82,82,.3)" onclick="cancelAppt('${b.id}')">Cancel</button>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error)">Could not load appointments.</div>';
+  }
+}
+
+async function cancelAppt(id) {
+  if (!confirm('Cancel this appointment?')) return;
+  try { await sbPatch('bookings', `id=eq.${id}`, { status: 'cancelled' }); toast('Appointment cancelled.'); loadAppointments(); }
+  catch(e) { toast('Could not cancel.', 'error'); }
+}
+
+// ── GMB SECTION ──
+async function loadGmbSection() {
+  if (!doctor) return;
+  // Refresh doctor to get latest gmb_status
+  try {
+    const docs = await sbGet('doctor_profiles', `id=eq.${doctor.id}&select=gmb_status`);
+    if (docs.length) { doctor.gmb_status = docs[0].gmb_status; localStorage.setItem('docube_doctor', JSON.stringify(doctor)); }
+  } catch(e) {}
+  updateGmbPipeline(doctor.gmb_status);
+  loadTickets();
+}
+
+function updateGmbPipeline(status) {
+  // Stages: submitted(0) → under_review(1) → optimised(2) → live(3)
+  const stageMap = { pending: 0, under_review: 1, optimised: 2, live: 3 };
+  const activeStage = stageMap[status] ?? 0;
+  const stages = document.querySelectorAll('.gmb-stage');
+  stages.forEach((s, i) => {
+    s.classList.remove('done', 'active');
+    if (i < activeStage) s.classList.add('done');
+    if (i === activeStage) s.classList.add('active');
+  });
+  // Progress line
+  const pct = (activeStage / (stages.length - 1)) * 100;
+  const line = document.getElementById('gmbProgressLine');
+  if (line) line.style.width = `${pct}%`;
+}
+
+async function loadTickets() {
+  const list = document.getElementById('ticketList');
+  try {
+    const tickets = await sbGet('gmb_tickets', `doctor_id=eq.${doctor.id}&select=*&order=created_at.desc`);
+    if (!tickets.length) {
+      list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:13.5px">No requests yet. Use the button above to raise a change request.</div>';
+      return;
+    }
+    list.innerHTML = tickets.map(t => `
+      <div class="ticket-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <div class="ticket-type">${t.request_type}</div>
+          <span class="badge badge-${t.status}">${t.status}</span>
+        </div>
+        <div class="ticket-desc">${t.description}</div>
+        <div class="ticket-meta">
+          <span>${new Date(t.created_at).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</span>
+          ${t.status === 'resolved' ? '<span style="color:#1a9f7e;font-weight:600">✓ Resolved by Docube team</span>' : '<span>Awaiting action by Docube team</span>'}
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-muted)">Could not load requests.</div>';
+  }
+}
+
+async function submitTicket() {
+  const type = document.getElementById('tk_type').value;
+  const desc = document.getElementById('tk_desc').value.trim();
+  let ok = true;
+  if (!type) { document.getElementById('e_tk_type').classList.add('show'); ok = false; } else document.getElementById('e_tk_type').classList.remove('show');
+  if (!desc) { document.getElementById('e_tk_desc').classList.add('show'); ok = false; } else document.getElementById('e_tk_desc').classList.remove('show');
+  if (!ok) return;
+  try {
+    await sbPost('gmb_tickets', { doctor_id: doctor.id, doctor_name: doctor.full_name, request_type: type, description: desc, status: 'open' });
+    toast('Request submitted!');
+    closeModal('ticketModal');
+    document.getElementById('tk_type').value = '';
+    document.getElementById('tk_desc').value = '';
+    loadTickets();
+  } catch(e) { toast('Could not submit. Make sure gmb_tickets table exists.', 'error'); }
+}
+
+// ── EDIT PROFILE ──
+function populateEditProfile() {
+  if (!doctor) return;
+  const d = doctor;
+  document.getElementById('ep_name').value = d.full_name || '';
+  document.getElementById('ep_spec').value = d.speciality || '';
+  document.getElementById('ep_quals').value = d.qualifications || '';
+  document.getElementById('ep_exp').value = d.experience || '';
+  document.getElementById('ep_phone').value = d.phone || '';
+  document.getElementById('ep_wa').value = d.whatsapp || '';
+  document.getElementById('ep_email').value = d.email || '';
+  document.getElementById('ep_bio').value = d.bio || '';
+  if (d.fee_range) {
+    document.querySelectorAll('#ep_feePills .pill').forEach(p => {
+      if (p.querySelector('input')?.value === d.fee_range) p.classList.add('on');
+      else p.classList.remove('on');
+    });
+  }
+  // Hours
+  buildHoursWrap(d.consultation_hours);
+  // Languages
+  buildLangChips(d.languages || []);
+}
+
+function buildHoursWrap(existing) {
+  const hw = document.getElementById('ep_hours');
+  hw.innerHTML = '';
+  DAY_NAMES.forEach(d => {
+    const ex = existing?.find(h => h.day === d);
+    const closed = ex ? ex.closed : d === 'Sunday';
+    const open = ex?.open || '09:00';
+    const close = ex?.close || '18:00';
+    const row = document.createElement('div');
+    row.className = 'hour-row' + (closed ? ' is-closed' : '');
+    row.id = 'ep-hr-' + d;
+    row.innerHTML = `<div class="day-lbl">${d.slice(0,3)}</div><input type="time" id="ep-ho-${d}" value="${open}" ${closed ? 'tabindex="-1"' : ''}><div class="hr-sep">–</div><input type="time" id="ep-hc-${d}" value="${close}" ${closed ? 'tabindex="-1"' : ''}><div class="closed-w"><input type="checkbox" id="ep-hx-${d}" ${closed ? 'checked' : ''} onchange="epToggleDay('${d}')"><label class="closed-lbl" for="ep-hx-${d}">Closed</label></div>`;
+    hw.appendChild(row);
+  });
+}
+function epToggleDay(d) { const cb = document.getElementById('ep-hx-' + d); document.getElementById('ep-hr-' + d).classList.toggle('is-closed', cb.checked); }
+
+function buildLangChips(selected) {
+  const c = document.getElementById('ep_langs');
+  c.innerHTML = '';
+  LANGS.forEach(l => {
+    const chip = document.createElement('label');
+    chip.className = 'chip' + (selected.includes(l) ? ' on' : '');
+    chip.dataset.value = l;
+    chip.innerHTML = `<div class="chip-box"><svg class="chip-ck" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="chip-lbl">${l}</span>`;
+    chip.addEventListener('click', e => { e.preventDefault(); chip.classList.toggle('on'); });
+    c.appendChild(chip);
+  });
+}
+
+function pickPill(el, groupId) {
+  document.querySelectorAll(`#${groupId} .pill`).forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+async function saveProfile() {
+  document.getElementById('epSaveTxt').textContent = 'Saving…';
+  document.getElementById('epSpinner').style.display = 'block';
+  const hours = DAY_NAMES.map(d => ({
+    day: d,
+    open: document.getElementById('ep-ho-' + d)?.value || '09:00',
+    close: document.getElementById('ep-hc-' + d)?.value || '18:00',
+    closed: document.getElementById('ep-hx-' + d)?.checked || false
+  }));
+  const langs = [...document.querySelectorAll('#ep_langs .chip.on')].map(c => c.dataset.value);
+  const data = {
+    full_name: document.getElementById('ep_name').value.trim(),
+    speciality: document.getElementById('ep_spec').value,
+    qualifications: document.getElementById('ep_quals').value.trim(),
+    experience: document.getElementById('ep_exp').value,
+    phone: document.getElementById('ep_phone').value.trim(),
+    whatsapp: document.getElementById('ep_wa').value.trim(),
+    email: document.getElementById('ep_email').value.trim(),
+    bio: document.getElementById('ep_bio').value.trim(),
+    fee_range: document.querySelector('input[name="ep_fee"]:checked')?.value || doctor.fee_range,
+    consultation_hours: hours,
+    languages: langs,
+  };
+  try {
+    await sbPatch('doctor_profiles', `id=eq.${doctor.id}`, data);
+    doctor = { ...doctor, ...data };
+    localStorage.setItem('docube_doctor', JSON.stringify(doctor));
+    populateSidebar();
+    toast('Profile saved!');
+  } catch(e) { toast('Save failed. Try again.', 'error'); }
+  document.getElementById('epSaveTxt').textContent = 'Save Changes';
+  document.getElementById('epSpinner').style.display = 'none';
+}
+
+// ── RESCHEDULE ──
+let rsBookingId, rsDocHours, rsCalYear, rsCalMonth_n, rsSelectedDate, rsSelectedTime;
+
+async function openReschedule(bookingId, docId, docName, currentDate, currentTime) {
+  rsBookingId = bookingId; rsSelectedDate = null; rsSelectedTime = null;
+  document.getElementById('rsModalSub').textContent = `${docName} · currently ${currentDate} at ${formatTime(currentTime)}`;
+  document.getElementById('rsSlotWrap').style.display = 'none';
+  document.getElementById('rsConfirmBtn').disabled = true;
+  rsDocHours = doctor.consultation_hours || [];
+  const now = new Date(); rsCalYear = now.getFullYear(); rsCalMonth_n = now.getMonth();
+  buildRsCalendar();
+  openModal('rsModal');
+}
+
+function rsChangeMonth(dir) {
+  rsCalMonth_n += dir;
+  if (rsCalMonth_n > 11) { rsCalMonth_n = 0; rsCalYear++; }
+  if (rsCalMonth_n < 0) { rsCalMonth_n = 11; rsCalYear--; }
+  buildRsCalendar();
+}
+
+function buildRsCalendar() {
+  const dn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('rsCalHead').innerHTML = dn.map(d => `<div class="dh">${d}</div>`).join('');
+  document.getElementById('rsCalMonth').textContent = new Date(rsCalYear, rsCalMonth_n, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(rsCalYear, rsCalMonth_n, 1).getDay();
+  const dim = new Date(rsCalYear, rsCalMonth_n + 1, 0).getDate();
+  const closedSet = new Set((rsDocHours || []).filter(h => h.closed).map(h => h.day));
+  let html = '';
+  for (let i = 0; i < firstDay; i++) html += `<button class="date-btn empty" disabled></button>`;
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(rsCalYear, rsCalMonth_n, d);
+    const dayName = DAY_NAMES[date.getDay()];
+    const isPast = date < today;
+    const isClosed = closedSet.has(dayName);
+    const isToday = date.toDateString() === today.toDateString();
+    const ds = `${rsCalYear}-${String(rsCalMonth_n+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cls = (isPast || isClosed) ? 'disabled' : (rsSelectedDate === ds ? 'selected' : (isToday ? 'today' : ''));
+    html += `<button class="date-btn ${cls}" onclick="rsSelectDate('${ds}','${dayName}',this)" ${(isPast || isClosed) ? 'disabled' : ''}>${d}</button>`;
+  }
+  document.getElementById('rsCalGrid').innerHTML = html;
+}
+
+async function rsSelectDate(ds, dayName, btn) {
+  document.querySelectorAll('#rsCalGrid .date-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  rsSelectedDate = ds; rsSelectedTime = null;
+  document.getElementById('rsConfirmBtn').disabled = true;
+  const dh = (rsDocHours || []).find(h => h.day === dayName);
+  document.getElementById('rsSlotLbl').textContent = new Date(ds + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('rsSlotWrap').style.display = 'block';
+  document.getElementById('rsSlotLoading').style.display = 'block';
+  document.getElementById('rsSlotGrid').innerHTML = '';
+  let bookedTimes = [];
+  try {
+    const ex = await sbGet('bookings', `select=preferred_time&doctor_id=eq.${doctor.id}&preferred_date=eq.${ds}&status=neq.cancelled&id=neq.${rsBookingId}`);
+    bookedTimes = ex.map(b => b.preferred_time);
+  } catch(e) {}
+  document.getElementById('rsSlotLoading').style.display = 'none';
+  const slots = genSlots(dh?.open || '09:00', dh?.close || '17:00');
+  document.getElementById('rsSlotGrid').innerHTML = slots.map(t => {
+    const bk = bookedTimes.includes(t);
+    return `<button class="slot-btn${bk ? ' unavail' : ''}" ${bk ? 'disabled' : `onclick="rsSelectSlot('${t}',this)"`}>${formatTime(t)}</button>`;
+  }).join('');
+}
+
+function rsSelectSlot(t, btn) {
+  document.querySelectorAll('#rsSlotGrid .slot-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  rsSelectedTime = t;
+  document.getElementById('rsConfirmBtn').disabled = false;
+}
+
+async function confirmReschedule() {
+  if (!rsSelectedDate || !rsSelectedTime) return;
+  const btn = document.getElementById('rsConfirmBtn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    await sbPatch('bookings', `id=eq.${rsBookingId}`, { preferred_date: rsSelectedDate, preferred_time: rsSelectedTime, status: 'rescheduled' });
+    toast('Appointment rescheduled!');
+    closeModal('rsModal');
+    loadAppointments();
+  } catch(e) {
+    toast('Could not reschedule.', 'error');
+    btn.textContent = 'Confirm'; btn.disabled = false;
+  }
+}
+
+function genSlots(open, close) {
+  const s = []; let [oh, om] = open.split(':').map(Number);
+  const [ch, cm] = close.split(':').map(Number);
+  const cMin = ch * 60 + cm;
+  while (oh * 60 + om < cMin) {
+    s.push(`${String(oh).padStart(2,'0')}:${String(om).padStart(2,'0')}`);
+    om += 30; if (om >= 60) { oh++; om -= 60; }
+  }
+  return s;
+}
+
+init();
+</script>
+</body>
+</html>
