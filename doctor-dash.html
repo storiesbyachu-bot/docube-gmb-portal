@@ -1,4 +1,4 @@
-x<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -383,6 +383,9 @@ function init() {
   loadAppointments();
   loadGmbSection();
   populateEditProfile();
+  // Auto-switch tab if coming from profile page GMB button
+  const tab = localStorage.getItem('docube_dash_tab');
+  if (tab) { localStorage.removeItem('docube_dash_tab'); switchSection(tab); }
 }
 
 function populateSidebar() {
