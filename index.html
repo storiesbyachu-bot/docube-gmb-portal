@@ -3,66 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Docube — Find a Doctor</title>
+<title>Docube — Get Found on Google</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-.dl-hero{background:var(--navy);padding:44px 20px;position:relative;overflow:hidden}
-.dl-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 100% at 60% -20%,rgba(77,217,217,.15) 0%,transparent 55%)}
-.dl-hero-inner{position:relative;z-index:1;max-width:900px;margin:0 auto}
-.dl-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(26px,4vw,40px);color:#fff;margin-bottom:8px}
-.dl-hero p{font-size:14px;color:rgba(255,255,255,.5);font-weight:300}
-.dl-search-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
-.dl-search-row input{flex:1;min-width:200px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);color:#fff;border-radius:var(--r-sm);padding:10px 16px;font-family:inherit;font-size:13.5px;outline:none}
-.dl-search-row input::placeholder{color:rgba(255,255,255,.35)}
-.dl-search-row input:focus{border-color:var(--teal);background:rgba(255,255,255,.1)}
-.dl-date-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
-.dl-date-row label{font-size:12.5px;color:rgba(255,255,255,.6);font-weight:500;white-space:nowrap}
-.dl-date-row input[type=date]{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);color:#fff;border-radius:var(--r-sm);padding:8px 14px;font-family:inherit;font-size:13px;outline:none;color-scheme:dark}
-.dl-date-row input[type=date]:focus{border-color:var(--teal)}
-.dl-date-clear{font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;text-decoration:underline}
-.dl-date-clear:hover{color:var(--teal)}
-.dl-body{max-width:900px;margin:0 auto;padding:22px 20px 80px}
-.dl-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.filter-btn{padding:6px 14px;border-radius:20px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text-mid);transition:all .16s}
-.filter-btn.on{background:var(--teal-pale);border-color:var(--teal-dark);color:var(--navy)}
-.dl-grid{display:flex;flex-direction:column;gap:14px}
-.dl-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm);text-decoration:none;display:block;color:inherit;transition:all .2s}
-.dl-card:hover{box-shadow:var(--shadow);border-color:var(--teal);transform:translateY(-1px)}
-.dl-card-inner{display:grid;grid-template-columns:56px 1fr auto;gap:18px;align-items:start}
-@media(max-width:600px){.dl-card-inner{grid-template-columns:48px 1fr}}
-.dl-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--teal-pale),rgba(77,217,217,.3));border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);flex-shrink:0}
-.dl-info{min-width:0}
-.dl-name{font-size:16px;font-weight:700;color:var(--navy);margin-bottom:2px}
-.dl-spec{font-size:13px;color:var(--teal-dark);font-weight:600;margin-bottom:10px}
-.dl-meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 20px;margin-bottom:10px}
-.dl-meta-item{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-mid)}
-.dl-meta-item svg{width:13px;height:13px;color:var(--teal-dark);flex-shrink:0}
-.dl-meta-item strong{color:var(--text);font-weight:600}
-.dl-centers{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.dl-center-tag{font-size:11.5px;background:var(--teal-pale);border:1px solid var(--border);color:var(--text-mid);padding:3px 10px;border-radius:20px;font-weight:500}
-.dl-card-action{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;padding-top:2px}
-@media(max-width:600px){.dl-card-action{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between;border-top:1px solid var(--border-light);padding-top:12px;margin-top:4px}}
-.dl-slots{text-align:right}
-.dl-slots-count{font-size:18px;font-weight:800;color:var(--navy);line-height:1}
-.dl-slots-label{font-size:11px;color:var(--text-muted);margin-top:2px}
-.dl-slots.available .dl-slots-count{color:#1a9f7e}
-.dl-slots.unavailable .dl-slots-count{color:var(--error)}
-.dl-slots.loading .dl-slots-count{font-size:13px;color:var(--text-muted)}
-.dl-book-btn{display:inline-flex;align-items:center;gap:6px;background:var(--orange);color:#fff;padding:9px 18px;border-radius:var(--r-sm);font-size:13px;font-weight:700;white-space:nowrap;transition:all .16s}
-.dl-card:hover .dl-book-btn{background:var(--orange-dark)}
-.empty-state{text-align:center;padding:56px 20px;color:var(--text-muted)}
-.loader-wrap{text-align:center;padding:56px 20px}
-.loader{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* ── HERO ── */
+.hero{background:var(--navy);position:relative;overflow:hidden;padding:80px 20px 90px}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 120% at 85% -5%,rgba(77,217,217,.2) 0%,transparent 55%),
+             radial-gradient(ellipse 50% 60% at -5% 90%,rgba(245,166,35,.15) 0%,transparent 50%),
+             radial-gradient(ellipse 40% 40% at 50% 110%,rgba(77,217,217,.08) 0%,transparent 50%)}
+.hero-inner{position:relative;z-index:1;max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:center}
+@media(max-width:780px){.hero-inner{grid-template-columns:1fr;gap:40px}}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:7px;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:var(--orange);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:20px}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(32px,5vw,54px);color:#fff;line-height:1.1;margin-bottom:18px}
+.hero h1 i{color:var(--teal);font-style:italic}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.55);line-height:1.7;font-weight:300;margin-bottom:32px;max-width:460px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-hero-primary{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;padding:14px 28px;border-radius:var(--r-sm);font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;transition:all .2s;box-shadow:0 6px 20px rgba(245,166,35,.35)}
+.btn-hero-primary:hover{background:var(--orange-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.45)}
+.btn-hero-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:rgba(255,255,255,.75);padding:14px 24px;border-radius:var(--r-sm);font-family:inherit;font-size:15px;font-weight:600;text-decoration:none;border:1.5px solid rgba(255,255,255,.2);transition:all .2s}
+.btn-hero-ghost:hover{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.4)}
+
+/* Hero card */
+.hero-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:28px;backdrop-filter:blur(10px)}
+.hero-card-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.gmb-preview{display:flex;flex-direction:column;gap:10px}
+.gmb-preview-row{display:flex;align-items:center;gap:10px}
+.gmb-preview-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gmb-preview-icon.teal{background:rgba(77,217,217,.15)}
+.gmb-preview-icon.orange{background:rgba(245,166,35,.15)}
+.gmb-preview-icon.green{background:rgba(34,201,160,.15)}
+.gmb-preview-icon svg{width:16px;height:16px}
+.gmb-preview-icon.teal svg{color:var(--teal)}
+.gmb-preview-icon.orange svg{color:var(--orange)}
+.gmb-preview-icon.green svg{color:#22c9a0}
+.gmb-preview-text{font-size:13px;color:rgba(255,255,255,.75);font-weight:500}
+.gmb-preview-sub{font-size:11.5px;color:rgba(255,255,255,.35);margin-top:1px}
+.hero-card-divider{height:1px;background:rgba(255,255,255,.08);margin:16px 0}
+.hero-stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px}
+.hero-stat{text-align:center;padding:12px 8px;background:rgba(255,255,255,.04);border-radius:9px;border:1px solid rgba(255,255,255,.07)}
+.hero-stat-val{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px}
+.hero-stat-val.teal{color:var(--teal)}
+.hero-stat-val.orange{color:var(--orange)}
+.hero-stat-val.green{color:#22c9a0}
+.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,.35);line-height:1.3}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--teal-dark);padding:0}
+.stats-bar-inner{max-width:920px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+@media(max-width:600px){.stats-bar-inner{grid-template-columns:repeat(2,1fr)}}
+.stat-item{padding:20px 24px;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-size:26px;font-weight:800;color:#fff;margin-bottom:2px}
+.stat-desc{font-size:11.5px;color:rgba(255,255,255,.7);line-height:1.4}
+
+/* ── SECTION ── */
+.section{padding:72px 20px}
+.section-inner{max-width:920px;margin:0 auto}
+.section-label{font-size:11.5px;font-weight:700;color:var(--teal-dark);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.section-title{font-family:'Instrument Serif',serif;font-size:clamp(26px,4vw,40px);color:var(--navy);line-height:1.15;margin-bottom:14px}
+.section-title i{color:var(--teal-dark);font-style:italic}
+.section-sub{font-size:15px;color:var(--text-muted);line-height:1.7;max-width:560px;font-weight:300}
+
+/* ── WHY GMB ── */
+.why-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;margin-top:44px}
+.why-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:26px;box-shadow:var(--shadow-sm);transition:all .2s}
+.why-card:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--teal)}
+.why-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.why-icon svg{width:22px;height:22px}
+.why-icon.orange{background:var(--orange-pale)}
+.why-icon.orange svg{color:var(--orange)}
+.why-icon.teal{background:var(--teal-pale)}
+.why-icon.teal svg{color:var(--teal-dark)}
+.why-icon.green{background:rgba(34,201,160,.1)}
+.why-icon.green svg{color:#1a9f7e}
+.why-icon.purple{background:rgba(124,58,237,.08)}
+.why-icon.purple svg{color:#7c3aed}
+.why-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.why-desc{font-size:13.5px;color:var(--text-muted);line-height:1.65}
+.why-stat{display:inline-flex;align-items:center;gap:5px;margin-top:12px;background:var(--teal-pale);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;color:var(--teal-dark)}
+
+/* ── STATS SECTION ── */
+.stats-section{background:var(--navy);padding:72px 20px;position:relative;overflow:hidden}
+.stats-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 90% 50%,rgba(77,217,217,.1) 0%,transparent 55%)}
+.stats-section .section-label{color:var(--teal)}
+.stats-section .section-title{color:#fff}
+.stats-section .section-title i{color:var(--teal)}
+.stats-section .section-sub{color:rgba(255,255,255,.5)}
+.big-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:var(--r);overflow:hidden;margin-top:44px}
+.big-stat{background:rgba(255,255,255,.03);padding:32px 28px;transition:background .2s}
+.big-stat:hover{background:rgba(255,255,255,.06)}
+.big-stat-num{font-family:'Instrument Serif',serif;font-size:48px;font-weight:400;line-height:1;margin-bottom:8px}
+.big-stat-num.orange{color:var(--orange)}
+.big-stat-num.teal{color:var(--teal)}
+.big-stat-num.green{color:#22c9a0}
+.big-stat-num.white{color:#fff}
+.big-stat-label{font-size:14px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px}
+.big-stat-source{font-size:11.5px;color:rgba(255,255,255,.3)}
+
+/* ── HOW IT WORKS ── */
+.how-section{background:var(--cream);padding:72px 20px}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;margin-top:44px;position:relative}
+.steps-grid::before{content:'';position:absolute;top:24px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--teal-pale),var(--border),var(--teal-pale));z-index:0}
+@media(max-width:600px){.steps-grid::before{display:none}}
+.step-item{text-align:center;padding:0 16px;position:relative;z-index:1}
+.step-num{width:48px;height:48px;border-radius:50%;background:var(--navy);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;border:3px solid var(--teal-pale)}
+.step-item.active .step-num{background:var(--teal-dark);border-color:var(--teal)}
+.step-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.step-desc{font-size:12.5px;color:var(--text-muted);line-height:1.55}
+
+/* ── WHAT WE DO ── */
+.what-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px}
+@media(max-width:640px){.what-grid{grid-template-columns:1fr}}
+.what-item{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--border-light);border-radius:var(--r-sm);padding:18px 20px;box-shadow:var(--shadow-sm)}
+.what-check{width:28px;height:28px;border-radius:50%;background:var(--teal-pale);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.what-check svg{width:14px;height:14px;color:var(--teal-dark)}
+.what-text-title{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.what-text-desc{font-size:12.5px;color:var(--text-muted);line-height:1.55}
+
+/* ── CTA ── */
+.cta-section{background:linear-gradient(135deg,var(--navy) 0%,#0d2b4a 100%);padding:80px 20px;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 100%,rgba(77,217,217,.15) 0%,transparent 60%)}
+.cta-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
+.cta-inner h2{font-family:'Instrument Serif',serif;font-size:clamp(28px,5vw,44px);color:#fff;line-height:1.15;margin-bottom:14px}
+.cta-inner h2 i{color:var(--teal);font-style:italic}
+.cta-inner p{font-size:15px;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:32px;font-weight:300}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ── FOOTER ── */
+.site-footer{background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:24px 20px;text-align:center}
+.site-footer p{font-size:12.5px;color:rgba(255,255,255,.3)}
+.site-footer a{color:rgba(255,255,255,.5);text-decoration:none}
+.site-footer a:hover{color:var(--teal)}
 </style>
 </head>
 <body>
-
-<div class="toast" id="toast">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toastMsg">Done</span>
-</div>
 
 <nav class="topnav">
   <a class="nav-logo" href="index.html">
@@ -77,198 +153,261 @@
     <span class="nav-logo-text"><b>DOC</b>UBE</span>
   </a>
   <div class="nav-spacer"></div>
-  <a class="nav-btn nav-btn-ghost" href="index.html">Our Doctors</a>
   <a class="nav-btn nav-btn-admin" href="admin.html">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
     Admin
   </a>
-  <a class="nav-btn nav-btn-orange" href="onboard.html">GMB Onboarding</a>
+  <a class="nav-btn nav-btn-ghost" href="auth.html">Doctor Login</a>
+  <a class="nav-btn nav-btn-orange" href="onboard.html">Get My GMB Profile</a>
 </nav>
 
-<div class="dl-hero">
-  <div class="dl-hero-inner">
-    <h1>Find Your <i style="font-style:italic;color:var(--teal)">Specialist</i></h1>
-    <p>Book a private consultation with Bangalore's top doctors at Docube centers</p>
-    <div class="dl-search-row">
-      <input type="text" id="searchInput" placeholder="Search by name, speciality or center…" oninput="filterDoctors()">
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Google My Business for Doctors
+      </div>
+      <h1>Get Your Practice<br><i>Found on Google</i></h1>
+      <p class="hero-sub">Docube sets up and manages your Google Business Profile — so when patients search for a specialist in Bangalore, they find <strong style="color:#fff;font-weight:600">you</strong>.</p>
+      <div class="hero-actions">
+        <a href="onboard.html" class="btn-hero-primary">
+          Start GMB Onboarding
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+        <a href="auth.html" class="btn-hero-ghost">Doctor Login</a>
+      </div>
     </div>
-    <div class="dl-date-row">
-      <label>Check availability for:</label>
-      <input type="date" id="slotDate" onchange="filterDoctors()">
-      <span class="dl-date-clear" onclick="clearDate()">Show all</span>
-    </div>
-  </div>
-</div>
-
-<div class="dl-body fadein">
-  <div class="dl-filter-bar" id="centerFilters"></div>
-  <div class="dl-grid" id="doctorGrid">
-    <div class="loader-wrap"><div class="loader"></div><p style="color:var(--text-muted)">Loading doctors…</p></div>
-  </div>
-</div>
-
-<script src="shared.js"></script>
-<script>
-let allDoctors = [];
-const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-
-// Set date picker default to today
-const todayStr = new Date().toISOString().split('T')[0];
-document.getElementById('slotDate').value = todayStr;
-document.getElementById('slotDate').min = todayStr;
-
-async function loadDoctors() {
-  const grid = document.getElementById('doctorGrid');
-  try {
-    allDoctors = await sbGet('doctor_profiles',
-      'select=id,full_name,speciality,experience,gmb_status,docube_center,docube_centers,languages,appointment_type,fee_range,consultation_hours&order=created_at.desc');
-    buildCenterFilters();
-    filterDoctors();
-  } catch(e) {
-    console.error('Load doctors error:', e.message);
-    grid.innerHTML = `<div class="empty-state">Could not load doctors: ${e.message.slice(0,120)}</div>`;
-  }
-}
-
-function buildCenterFilters() {
-  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
-  const allCenters = allDoctors.flatMap(d => tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []));
-  const centers = ['All', ...new Set(allCenters.filter(Boolean).map(c => c.replace('Docube Healthcare – ','')))];
-  document.getElementById('centerFilters').innerHTML = centers.map((c,i) =>
-    `<button class="filter-btn${i===0?' on':''}" onclick="filterByCenter('${c}',this)">${c}</button>`).join('');
-}
-
-let activeCenter = 'All';
-function filterByCenter(center, btn) {
-  activeCenter = center;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  filterDoctors();
-}
-
-function clearDate() {
-  document.getElementById('slotDate').value = todayStr;
-  filterDoctors();
-}
-
-function filterDoctors() {
-  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
-  const q = document.getElementById('searchInput').value.toLowerCase();
-  let docs = allDoctors;
-  if (activeCenter !== 'All') docs = docs.filter(d => {
-    const centers = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
-    return centers.some(c => c.includes(activeCenter));
-  });
-  if (q) docs = docs.filter(d =>
-    (d.full_name||'').toLowerCase().includes(q) ||
-    (d.speciality||'').toLowerCase().includes(q) ||
-    (d.docube_center||'').toLowerCase().includes(q)
-  );
-  renderDoctors(docs);
-}
-
-async function renderDoctors(docs) {
-  const grid = document.getElementById('doctorGrid');
-  if (!docs.length) { grid.innerHTML = '<div class="empty-state"><p>No doctors found.</p></div>'; return; }
-  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
-  const selectedDate = document.getElementById('slotDate').value;
-  const dayName = selectedDate ? DAY_NAMES[new Date(selectedDate + 'T00:00:00').getDay()] : null;
-
-  // Render cards immediately with loading state for slots
-  grid.innerHTML = docs.map(d => {
-    const langs = tryParse(d.languages, []);
-    const centers = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
-    const hours = tryParse(d.consultation_hours, []);
-
-    // Check if doctor works on selected day
-    const dayHours = dayName ? hours.find(h => h.day === dayName) : null;
-    const isClosedToday = dayHours ? dayHours.closed : false;
-
-    // Generate total slots for the day
-    const totalSlots = (!isClosedToday && dayHours) ? genSlots(dayHours.open, dayHours.close).length : 0;
-
-    // Appointment type — expand "Both" to full words
-    const apptDisplay = {
-      'Walk-in': 'Walk-in',
-      'Appointment Only': 'Appointment Only',
-      'Both': 'Walk-in & Appointment'
-    }[d.appointment_type] || d.appointment_type || '';
-
-    const centerTags = centers.map(c => `<span class="dl-center-tag">${c.replace('Docube Healthcare – ','')}</span>`).join('');
-    const dateLabel = selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'}) : 'Today';
-
-    return `<a class="dl-card" href="profile.html?doctor=${d.id}">
-      <div class="dl-card-inner">
-        <div class="dl-avatar">${initials(d.full_name)}</div>
-        <div class="dl-info">
-          <div class="dl-name">${d.full_name}</div>
-          <div class="dl-spec">${d.speciality}</div>
-          <div class="dl-meta-grid">
-            <div class="dl-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span><strong>${d.experience}</strong> experience</span>
-            </div>
-            ${apptDisplay ? `<div class="dl-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span><strong>${apptDisplay}</strong></span>
-            </div>` : ''}
-            ${d.fee_range ? `<div class="dl-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <span><strong>${d.fee_range}</strong></span>
-            </div>` : ''}
-            ${langs.length ? `<div class="dl-meta-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              <span><strong>${langs.join(', ')}</strong></span>
-            </div>` : ''}
+    <div>
+      <div class="hero-card">
+        <div class="hero-card-title">What Docube does for you</div>
+        <div class="gmb-preview">
+          <div class="gmb-preview-row">
+            <div class="gmb-preview-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+            <div><div class="gmb-preview-text">Create your Google Business Profile</div><div class="gmb-preview-sub">Optimised with SEO keywords for your speciality</div></div>
           </div>
-          <div class="dl-centers">${centerTags}</div>
+          <div class="gmb-preview-row">
+            <div class="gmb-preview-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+            <div><div class="gmb-preview-text">Write your profile description</div><div class="gmb-preview-sub">High-search-volume keywords, structured for Maps</div></div>
+          </div>
+          <div class="gmb-preview-row">
+            <div class="gmb-preview-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div><div class="gmb-preview-text">Verify and go live on Google</div><div class="gmb-preview-sub">Profile active on Google Search and Maps</div></div>
+          </div>
         </div>
-        <div class="dl-card-action">
-          <div class="dl-slots ${isClosedToday ? 'unavailable' : totalSlots > 0 ? 'available' : 'loading'}" id="slots-${d.id}">
-            <div class="dl-slots-count">${isClosedToday ? '—' : totalSlots > 0 ? totalSlots : '...'}</div>
-            <div class="dl-slots-label">${isClosedToday ? 'Closed' : 'slots'}<br><span style="font-size:10px;opacity:.7">${dateLabel}</span></div>
-          </div>
-          <div class="dl-book-btn">
-            Book
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
+        <div class="hero-card-divider"></div>
+        <div class="hero-stat-row">
+          <div class="hero-stat"><div class="hero-stat-val teal">3–5</div><div class="hero-stat-lbl">Days to go live</div></div>
+          <div class="hero-stat"><div class="hero-stat-val orange">2x</div><div class="hero-stat-lbl">More patient calls</div></div>
+          <div class="hero-stat"><div class="hero-stat-val green">Free</div><div class="hero-stat-lbl">For Docube doctors</div></div>
         </div>
       </div>
-    </a>`;
-  }).join('');
+    </div>
+  </div>
+</section>
 
-  // Now fetch booked slots asynchronously and update available count
-  if (selectedDate) {
-    docs.forEach(async d => {
-      const hours = tryParse(d.consultation_hours, []);
-      const dayHours = hours.find(h => h.day === dayName);
-      if (!dayHours || dayHours.closed) return;
-      const totalSlots = genSlots(dayHours.open, dayHours.close).length;
-      try {
-        const booked = await sbGet('bookings', `select=preferred_time&doctor_id=eq.${d.id}&preferred_date=eq.${selectedDate}&status=neq.cancelled`);
-        const available = totalSlots - booked.length;
-        const el = document.getElementById(`slots-${d.id}`);
-        if (!el) return;
-        el.className = `dl-slots ${available > 0 ? 'available' : 'unavailable'}`;
-        el.innerHTML = `<div class="dl-slots-count">${available > 0 ? available : 'Full'}</div>
-          <div class="dl-slots-label">${available > 0 ? 'slots free' : 'no slots'}<br><span style="font-size:10px;opacity:.7">${new Date(selectedDate+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span></div>`;
-      } catch(e) {}
-    });
-  }
-}
+<!-- ── STATS BAR ── -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">97%</div>
+      <div class="stat-desc">of patients search online before visiting a doctor</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">5×</div>
+      <div class="stat-desc">more views for verified Google Business Profiles</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">76%</div>
+      <div class="stat-desc">of "near me" searches result in a same-day visit</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">#1</div>
+      <div class="stat-desc">channel patients use to discover local doctors</div>
+    </div>
+  </div>
+</div>
 
-function genSlots(open, close) {
-  const s = []; let [oh, om] = open.split(':').map(Number);
-  const [ch, cm] = close.split(':').map(Number);
-  const cMin = ch * 60 + cm;
-  while (oh * 60 + om < cMin) {
-    s.push(`${String(oh).padStart(2,'0')}:${String(om).padStart(2,'0')}`);
-    om += 30; if (om >= 60) { oh++; om -= 60; }
-  }
-  return s;
-}
+<!-- ── WHY GMB ── -->
+<section class="section" style="background:#fff">
+  <div class="section-inner">
+    <div class="section-label">Why It Matters</div>
+    <h2 class="section-title">Your patients are searching.<br><i>Are they finding you?</i></h2>
+    <p class="section-sub">Google My Business is the single most powerful free tool for doctors to get discovered locally. Here's what a verified, optimised profile does for your practice.</p>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="why-title">Show up in Google Search</div>
+        <div class="why-desc">When someone searches "dermatologist near me" or "best cardiologist in Koramangala", a verified GMB profile puts you at the top of results — above regular websites.</div>
+        <div class="why-stat">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          70% of clicks go to top 3 GMB results
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div class="why-title">Appear on Google Maps</div>
+        <div class="why-desc">Patients searching for doctors in Bangalore use Maps to find nearby options. Your clinic pin, photos, hours and contact appear instantly — driving direct walk-ins.</div>
+        <div class="why-stat">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          86% of patients use Maps to find clinics
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg></div>
+        <div class="why-title">Get More Patient Calls</div>
+        <div class="why-desc">GMB profiles show your phone number with a direct call button on mobile. Patients call you directly from search results — no website needed.</div>
+        <div class="why-stat">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          2× more calls with a verified profile
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="why-title">Build Trust with Reviews</div>
+        <div class="why-desc">Google reviews are the #1 trust signal for new patients. A managed GMB profile helps you collect and respond to reviews — building your online reputation over time.</div>
+        <div class="why-stat">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          88% of patients trust online reviews
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-loadDoctors();
-</script>
+<!-- ── BIG STATS ── -->
+<section class="stats-section">
+  <div class="section-inner" style="position:relative;z-index:1">
+    <div class="section-label">By the Numbers</div>
+    <h2 class="section-title" style="color:#fff">Why doctors <i>can't afford</i><br>to ignore Google</h2>
+    <div class="big-stats">
+      <div class="big-stat">
+        <div class="big-stat-num orange">77%</div>
+        <div class="big-stat-label">Patients start with Google</div>
+        <div class="big-stat-source">Before booking any healthcare appointment</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num teal">2.8×</div>
+        <div class="big-stat-label">More profile views</div>
+        <div class="big-stat-source">With SEO-optimised GMB vs basic listing</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num green">58%</div>
+        <div class="big-stat-label">Search on mobile</div>
+        <div class="big-stat-source">For local doctors while on the go</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num white">4.2×</div>
+        <div class="big-stat-label">Directions requests</div>
+        <div class="big-stat-source">For businesses with complete GMB profiles</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num orange">46%</div>
+        <div class="big-stat-label">Of all Google searches</div>
+        <div class="big-stat-source">Are looking for local businesses or services</div>
+      </div>
+      <div class="big-stat">
+        <div class="big-stat-num teal">3 min</div>
+        <div class="big-stat-label">To fill the form</div>
+        <div class="big-stat-source">Docube handles everything else in 3–5 days</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="section-inner">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">From form to <i>Google in 5 days</i></h2>
+    <p class="section-sub">You fill in your details once. Our team does the rest — category selection, SEO keywords, profile optimisation, and going live.</p>
+    <div class="steps-grid">
+      <div class="step-item active">
+        <div class="step-num">1</div>
+        <div class="step-title">Fill the Form</div>
+        <div class="step-desc">5-minute onboarding — your info, speciality, hours and centers</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-title">Team Reviews</div>
+        <div class="step-desc">Docube's marketing team selects the right GMB category and keywords</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-title">Profile Created</div>
+        <div class="step-desc">Your Google Business Profile is set up with photos, description and services</div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-title">Goes Live</div>
+        <div class="step-desc">Verified on Google Search and Maps — patients can find you instantly</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHAT WE DO ── -->
+<section class="section" style="background:#fff">
+  <div class="section-inner">
+    <div class="section-label">What's Included</div>
+    <h2 class="section-title">Everything handled by <i>Docube's team</i></h2>
+    <p class="section-sub">You focus on patients. We handle your entire Google presence — from setup to ongoing management.</p>
+    <div class="what-grid">
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">GMB Profile Creation</div><div class="what-text-desc">Full profile setup with your speciality, clinic details, hours and contact info</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">SEO-Optimised Description</div><div class="what-text-desc">High-search-volume keywords written by our team to rank higher on Google</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Right Business Category</div><div class="what-text-desc">Correct GMB category and sub-categories to maximise local search visibility</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Service Tags Added</div><div class="what-text-desc">All conditions and services you treat listed on your profile for search relevance</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Ongoing Management</div><div class="what-text-desc">Update hours, photos, posts and respond to queries — all managed by Docube</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Change Request System</div><div class="what-text-desc">Need to update something? Raise a ticket from your dashboard — we action it within 2 days</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Existing GMB Takeover</div><div class="what-text-desc">Already have a GMB profile? We take over management and optimise it for better visibility</div></div>
+      </div>
+      <div class="what-item">
+        <div class="what-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div><div class="what-text-title">Completely Free for Docube Doctors</div><div class="what-text-desc">This service is exclusively for doctors consulting at Docube centers — at no cost</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to get found<br><i>on Google?</i></h2>
+    <p>Takes 5 minutes to fill the form. Docube's team handles everything else — your profile will be live on Google Search and Maps within 3–5 business days.</p>
+    <div class="cta-btns">
+      <a href="onboard.html" class="btn-hero-primary">
+        Start GMB Onboarding →
+      </a>
+      <a href="auth.html" class="btn-hero-ghost">Already onboarded? Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── */
+<footer class="site-footer">
+  <p>© 2025 <a href="https://docube.in" target="_blank">Docube Healthcare</a> · Google My Business Management for Doctors in Bangalore · <a href="mailto:info@docube.in">info@docube.in</a></p>
+</footer>
+
 </body>
 </html>
