@@ -416,7 +416,7 @@
     <div class="success-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     <div class="success-h">You're all set!</div>
     <p class="success-p">Your GMB onboarding has been submitted. The Docube team will review your details and get your Google profile live within <strong>3–5 business days</strong>.</p>
-    <a class="success-cta" href="index.html">View Doctor Profiles →</a>
+    <a class="success-cta" href="#" id="viewProfileBtn">View Your Profile →</a>
   </div>
 </div>
 
@@ -617,7 +617,9 @@ async function submitForm() {
     gmb_status: 'pending'
   };
   try {
-    await sbPost('doctor_profiles', data);
+    const result = await sbPost('doctor_profiles', data);
+    const created = Array.isArray(result) ? result[0] : result;
+    document.getElementById('viewProfileBtn').href = `profile.html?doctor=${created.id}`;
     document.getElementById('card4').classList.remove('active');
     document.getElementById('obSuccess').classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
