@@ -84,7 +84,31 @@
 .modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text-muted);font-family:inherit}
 
-/* Badges */
+/* Doctor detail modal */
+.doc-modal{max-width:780px;max-height:88vh;overflow-y:auto;padding:0}
+.doc-modal-header{background:var(--navy);padding:28px 28px 24px;position:relative;border-radius:var(--r) var(--r) 0 0}
+.doc-modal-header .modal-close{top:16px;right:16px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+.doc-modal-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,rgba(77,217,217,.4),rgba(77,217,217,.2));border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:20px;color:var(--navy);flex-shrink:0}
+.doc-modal-name{font-family:'Instrument Serif',serif;font-size:22px;color:#fff;margin-bottom:3px}
+.doc-modal-spec{font-size:13px;color:rgba(255,255,255,.55)}
+.doc-modal-body{padding:24px 28px 28px}
+.doc-section{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--border-light)}
+.doc-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.doc-section-title{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.doc-section-title::after{content:'';flex:1;height:1px;background:var(--border-light)}
+.doc-field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+@media(max-width:560px){.doc-field-grid{grid-template-columns:1fr}}
+.doc-field{display:flex;flex-direction:column;gap:2px}
+.doc-field-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase}
+.doc-field-value{font-size:13.5px;color:var(--text);font-weight:500}
+.doc-field-value.muted{color:var(--text-muted);font-style:italic;font-weight:400}
+.doc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.doc-tag{background:var(--teal-pale);border:1px solid var(--border);border-radius:5px;padding:3px 10px;font-size:12px;color:var(--text-mid)}
+.doc-hours-table{width:100%;border-collapse:collapse}
+.doc-hours-table td{padding:4px 0;font-size:13px;border-bottom:1px solid var(--border-light)}
+.doc-hours-table tr:last-child td{border-bottom:none}
+.doc-hours-table .day{font-weight:600;color:var(--text-muted);width:80px}
+.doc-gmb-highlight{background:linear-gradient(135deg,rgba(77,217,217,.08),rgba(245,166,35,.05));border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px}
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 .badge-pending{background:rgba(245,166,35,.15);color:var(--orange-dark);border:1px solid rgba(245,166,35,.3)}
 .badge-live{background:rgba(34,201,160,.15);color:#1a9f7e;border:1px solid rgba(34,201,160,.3)}
@@ -97,6 +121,24 @@
 <div class="toast" id="toast">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
   <span id="toastMsg"></span>
+</div>
+
+<!-- Doctor Detail Modal -->
+<div class="modal-overlay" id="docModal">
+  <div class="modal doc-modal">
+    <div class="doc-modal-header">
+      <button class="modal-close" onclick="closeDocModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="doc-modal-avatar" id="docModalAvatar">D</div>
+        <div>
+          <div class="doc-modal-name" id="docModalName"></div>
+          <div class="doc-modal-spec" id="docModalSpec"></div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap" id="docModalBadges"></div>
+      </div>
+    </div>
+    <div class="doc-modal-body" id="docModalBody"></div>
+  </div>
 </div>
 
 <!-- URL Modal -->
@@ -236,7 +278,7 @@ async function loadDashboard() {
 
     document.getElementById('recentTbl').innerHTML = docs.map(d => `
       <tr>
-        <td><strong>${d.full_name}</strong></td>
+        <td><strong style="cursor:pointer;color:var(--teal-dark);text-decoration:underline" onclick="viewDoctor('${d.id}')">${d.full_name}</strong></td>
         <td style="font-size:12px">${d.speciality || '—'}</td>
         <td style="font-size:12px">${(d.docube_center || '').replace('Docube Healthcare – ','')}</td>
         <td style="font-size:12px">${new Date(d.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
@@ -287,7 +329,7 @@ async function loadGmbStatus() {
       return `<div class="pipeline-wrap">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
           <div>
-            <div class="pipeline-doc-name">${d.full_name}</div>
+            <div class="pipeline-doc-name" style="cursor:pointer;color:var(--teal-dark)" onclick="viewDoctor('${d.id}')">${d.full_name}</div>
             <div class="pipeline-doc-sub">${d.speciality} · ${(d.docube_center||'').replace('Docube Healthcare – ','')} · ${d.email||d.phone||''}</div>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -421,6 +463,105 @@ async function resolveTicket(id) {
     loadTickets();
     loadDashboard();
   } catch(e) { toast('Failed', 'error'); }
+}
+
+// ── DOCTOR DETAIL MODAL ──
+function closeDocModal() { document.getElementById('docModal').classList.remove('show'); }
+document.getElementById('docModal').addEventListener('click', e => { if (e.target === document.getElementById('docModal')) closeDocModal(); });
+
+async function viewDoctor(id) {
+  document.getElementById('docModalName').textContent = 'Loading…';
+  document.getElementById('docModalSpec').textContent = '';
+  document.getElementById('docModalBadges').innerHTML = '';
+  document.getElementById('docModalBody').innerHTML = '<div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto"></div></div>';
+  document.getElementById('docModal').classList.add('show');
+  try {
+    const docs = await sbGet('doctor_profiles', `select=*&id=eq.${id}`);
+    if (!docs.length) { document.getElementById('docModalBody').innerHTML = '<p style="color:var(--error);padding:20px">Could not load doctor.</p>'; return; }
+    const d = docs[0];
+    const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
+    const hours = tryParse(d.consultation_hours, []);
+    const services = tryParse(d.services, []);
+    const langs = tryParse(d.languages, []);
+    const centers = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
+
+    document.getElementById('docModalAvatar').textContent = initials(d.full_name);
+    document.getElementById('docModalName').textContent = d.full_name;
+    document.getElementById('docModalSpec').textContent = `${d.speciality} · ${d.experience}`;
+    document.getElementById('docModalBadges').innerHTML = `<span class="badge badge-${d.gmb_status||'pending'}">${d.gmb_status||'pending'}</span>`;
+
+    const fv = (val, fallback='—') => val || `<span style="color:var(--text-muted);font-style:italic">${fallback}</span>`;
+
+    document.getElementById('docModalBody').innerHTML = `
+
+      <div class="doc-section">
+        <div class="doc-section-title">Contact Details</div>
+        <div class="doc-field-grid">
+          <div class="doc-field"><div class="doc-field-label">Full Name</div><div class="doc-field-value">${fv(d.full_name)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Qualifications</div><div class="doc-field-value">${fv(d.qualifications)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Experience</div><div class="doc-field-value">${fv(d.experience)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Speciality</div><div class="doc-field-value">${fv(d.speciality)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Mobile</div><div class="doc-field-value">${fv(d.phone)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">WhatsApp</div><div class="doc-field-value">${fv(d.whatsapp,'Not provided')}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Email</div><div class="doc-field-value">${fv(d.email)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Clinic Phone</div><div class="doc-field-value">${fv(d.clinic_phone)}</div></div>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-title">Practice Details</div>
+        <div class="doc-field-grid">
+          <div class="doc-field"><div class="doc-field-label">Docube Centers</div><div class="doc-tags">${centers.length ? centers.map(c=>`<span class="doc-tag">${c.replace('Docube Healthcare – ','')}</span>`).join('') : '—'}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Appointment Type</div><div class="doc-field-value">${fv(d.appointment_type)}</div></div>
+          <div class="doc-field"><div class="doc-field-label">Fee Range</div><div class="doc-field-value">${fv(d.fee_range)}</div></div>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-title">Consultation Hours</div>
+        <table class="doc-hours-table">
+          ${hours.length ? hours.map(h=>`<tr><td class="day">${h.day.slice(0,3)}</td><td>${h.closed?'<span style="color:#e05252;font-size:12px;font-weight:600">Closed</span>':`${h.open} – ${h.close}`}</td></tr>`).join('') : '<tr><td colspan="2" style="color:var(--text-muted);font-size:13px">Not provided</td></tr>'}
+        </table>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-title">Services & Conditions Treated</div>
+        <div class="doc-tags">${services.length ? services.map(s=>`<span class="doc-tag">${s}</span>`).join('') : '<span style="color:var(--text-muted);font-size:13px">Not provided</span>'}</div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-title">Languages</div>
+        <div class="doc-tags">${langs.length ? langs.map(l=>`<span class="doc-tag">${l}</span>`).join('') : '<span style="color:var(--text-muted);font-size:13px">Not provided</span>'}</div>
+      </div>
+
+      ${d.bio ? `<div class="doc-section"><div class="doc-section-title">About / Bio</div><p style="font-size:13.5px;color:var(--text-mid);line-height:1.65">${d.bio}</p></div>` : ''}
+
+      <div class="doc-section">
+        <div class="doc-section-title">GMB Profile Info</div>
+        <div class="doc-gmb-highlight">
+          <div class="doc-field-grid">
+            <div class="doc-field"><div class="doc-field-label">Name for Google</div><div class="doc-field-value">${fv(d.gmb_full_name||d.full_name)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Qualifications</div><div class="doc-field-value">${fv(d.gmb_qualifications||d.qualifications)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Experience</div><div class="doc-field-value">${fv(d.gmb_experience||d.experience)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Speciality</div><div class="doc-field-value">${fv(d.gmb_speciality||d.speciality)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Home Visits</div><div class="doc-field-value">${fv(d.gmb_home_visits)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Service Area</div><div class="doc-field-value">${fv(d.gmb_service_area,'Not provided')}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Existing GMB?</div><div class="doc-field-value">${fv(d.existing_gmb)}</div></div>
+            <div class="doc-field"><div class="doc-field-label">Access to Docube</div><div class="doc-field-value">${d.gmb_access_confirmed==='done'?'✓ Already given':d.gmb_access_confirmed==='will_do'?'Will give after submission':fv(d.gmb_access_confirmed)}</div></div>
+          </div>
+          ${d.gmb_existing_link ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light)"><div class="doc-field-label" style="margin-bottom:4px">Existing GMB Link</div><a href="${d.gmb_existing_link}" target="_blank" style="font-size:13px;color:var(--teal-dark);word-break:break-all">${d.gmb_existing_link}</a></div>` : ''}
+        </div>
+      </div>
+
+      ${d.notes ? `<div class="doc-section"><div class="doc-section-title">Notes for Team</div><p style="font-size:13.5px;color:var(--text-mid);line-height:1.65">${d.notes}</p></div>` : ''}
+
+      <div style="font-size:12px;color:var(--text-muted);text-align:right;margin-top:4px">
+        Submitted ${new Date(d.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}
+      </div>
+    `;
+  } catch(e) {
+    document.getElementById('docModalBody').innerHTML = `<p style="color:var(--error);padding:20px">Error: ${e.message}</p>`;
+  }
 }
 
 loadDashboard();
