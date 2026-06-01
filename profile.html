@@ -109,7 +109,7 @@ function renderProfile(d) {
   const bioHTML = d.bio ? `<div class="prof-sec"><div class="prof-sec-t">About</div><p style="font-size:14px;color:var(--text-mid);line-height:1.7">${d.bio}</p></div>` : '';
   const hoursHTML = (d.consultation_hours || []).map(h => `<tr><td class="dc">${h.day.slice(0,3)}</td><td>${h.closed ? '<span class="closed-badge">Closed</span>' : `${h.open} – ${h.close}`}</td></tr>`).join('');
   const metaHTML = [
-    d.docube_center ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${d.docube_center.replace('Docube Healthcare – ','Docube ')}</span>` : '',
+    d.docube_center ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${getCenters(d).map(c=>c.replace('Docube Healthcare – ','Docube ')).join(' · ')}</span>` : '',
     d.appointment_type ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${d.appointment_type}</span>` : '',
     d.gmb_status === 'live' ? '<span class="badge badge-live" style="margin-left:4px">GMB Live</span>' : '<span class="badge badge-pending" style="margin-left:4px">GMB Pending</span>',
   ].join('');
@@ -145,9 +145,20 @@ function renderProfile(d) {
       <div>
         <div class="book-card">
           <div class="book-card-title">Book Consultation</div>
-          <div class="book-card-sub">${d.docube_center || 'Docube Healthcare'}</div>
+          <div class="book-card-sub">Available at Docube</div>
+          ${getCenters(d).length > 1 ? `
+          <div style="margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Select Center</div>
+            <div style="display:flex;flex-direction:column;gap:6px" id="centerPicker">
+              ${getCenters(d).map((c,i) => `<label style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.06);border:1.5px solid ${i===0?'rgba(77,217,217,.4)':'rgba(255,255,255,.1)'};border-radius:8px;cursor:pointer;transition:all .16s" onclick="pickCenter(this,'${c}')">
+                <input type="radio" name="bookCenter" value="${c}" ${i===0?'checked':''} style="display:none">
+                <span style="width:14px;height:14px;border-radius:50%;border:2px solid ${i===0?'var(--teal)':'rgba(255,255,255,.3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0" class="center-radio-dot">${i===0?'<span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:block"></span>':''}</span>
+                <span style="font-size:12.5px;color:rgba(255,255,255,.8)">${c.replace('Docube Healthcare – ','')}</span>
+              </label>`).join('')}
+            </div>
+          </div>` : `<div class="book-card-sub" style="margin-bottom:14px">${getCenters(d)[0]?.replace('Docube Healthcare – ','Docube ') || 'Docube Healthcare'}</div>`}
           <div class="fee-row"><span class="fee-label">Consultation Fee</span><span class="fee-val">${d.fee_range || '—'}</span></div>
-          <a href="booking.html?doctor=${d.id}" class="btn btn-orange btn-lg" style="width:100%;justify-content:center">Book Appointment →</a>
+          <a href="booking.html?doctor=${d.id}" id="bookBtn" class="btn btn-orange btn-lg" style="width:100%;justify-content:center">Book Appointment →</a>
           <div class="contact-row">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16l.19.92z"/></svg>
             <a href="tel:${d.clinic_phone || d.phone}">${d.clinic_phone || d.phone || '—'}</a>
@@ -163,6 +174,28 @@ function renderProfile(d) {
         </div>
       </div>
     </div>`;
+}
+
+function getCenters(d) {
+  if (d.docube_centers && d.docube_centers.length) return d.docube_centers;
+  if (d.docube_center) return [d.docube_center];
+  return [];
+}
+
+function pickCenter(el, center) {
+  // Update radio styles
+  document.querySelectorAll('#centerPicker label').forEach(l => {
+    l.style.borderColor = 'rgba(255,255,255,.1)';
+    l.querySelector('.center-radio-dot').innerHTML = '';
+    l.querySelector('.center-radio-dot').style.borderColor = 'rgba(255,255,255,.3)';
+  });
+  el.style.borderColor = 'rgba(77,217,217,.4)';
+  el.querySelector('.center-radio-dot').innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:block"></span>';
+  el.querySelector('.center-radio-dot').style.borderColor = 'var(--teal)';
+  el.querySelector('input').checked = true;
+  // Update book link
+  const docId = new URLSearchParams(location.search).get('doctor');
+  document.getElementById('bookBtn').href = `booking.html?doctor=${docId}&center=${encodeURIComponent(center)}`;
 }
 
 function shareProfile() {
