@@ -111,11 +111,13 @@
       <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div><div class="card-title">Practice Details</div><div class="card-sub">Where patients can find you</div></div>
     </div>
-    <div class="ibox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Select the Docube center where you consult — the team will use this for your GMB location.</p></div>
+    <div class="ibox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Select all Docube centers where you consult — the team will use this for your GMB location.</p></div>
     <div class="fg one">
-      <div class="f"><label class="lbl">Docube Center <span class="req">*</span></label>
-        <select id="f_center"><option value="">Select center…</option><option>Docube Healthcare – Koramangala</option><option>Docube Healthcare – Whitefield</option><option>Docube Healthcare – JP Nagar</option><option>Docube Healthcare – Sarjapur</option><option>Docube Healthcare – HRBR</option><option>Other / Independent Practice</option></select>
-        <span class="f-err" id="e_center">Select center</span>
+      <div class="f">
+        <label class="lbl">Docube Centers <span class="req">*</span></label>
+        <p class="f-hint" style="margin-bottom:9px">Select all that apply</p>
+        <div class="chips langs" id="centerChips"></div>
+        <span class="f-err" id="e_center">Select at least one center</span>
       </div>
       <div class="f"><label class="lbl">Clinic Phone <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 80 1234 5678"><span class="f-err" id="e_cphone">Enter clinic phone</span></div>
     </div>
@@ -400,8 +402,11 @@ function refreshServChips() {
   buildChips('servChips', getServicesForSpec(spec));
 }
 
+const CENTERS = ['Docube Healthcare – Koramangala','Docube Healthcare – Whitefield','Docube Healthcare – JP Nagar','Docube Healthcare – Sarjapur','Docube Healthcare – HRBR','Other / Independent Practice'];
+
 buildChips('langChips', LANGS);
 buildChips('servChips', DEFAULT_SERVICES);
+buildChips('centerChips', CENTERS);
 
 // Rebuild service chips whenever speciality changes
 document.getElementById('f_spec').addEventListener('change', refreshServChips);
@@ -430,7 +435,9 @@ function validateStep(s) {
     ok &= vF('f_phone','e_phone', v => /^[+0-9\s\-]{7,}$/.test(v));
     ok &= vF('f_email','e_email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
   } else if (s === 1) {
-    ok &= vF('f_center','e_center', v => v !== '');
+    const centers = getChecked('centerChips');
+    document.getElementById('e_center').classList.toggle('show', !centers.length);
+    if (!centers.length) ok = false;
     ok &= vF('f_cphone','e_cphone', v => /^[+0-9\s\-]{7,}$/.test(v));
   } else if (s === 2) {
     const fee = document.querySelector('input[name="fee"]:checked');
@@ -502,7 +509,7 @@ async function submitForm() {
   document.getElementById('submitIcon').style.display = 'none';
   btn.disabled = true;
   const hours = DAYS.map(d => ({ day: d, open: document.getElementById('ho-'+d).value, close: document.getElementById('hc-'+d).value, closed: document.getElementById('hx-'+d).checked }));
-  const center = document.getElementById('f_center').value;
+  const centers = getChecked('centerChips');
   const data = {
     full_name: document.getElementById('f_name').value.trim(),
     speciality: resolveOther('f_spec', 'f_spec_other'),
@@ -511,8 +518,9 @@ async function submitForm() {
     phone: document.getElementById('f_phone').value.trim(),
     whatsapp: document.getElementById('f_wa').value.trim(),
     email: document.getElementById('f_email').value.trim(),
-    clinic_name: center,
-    docube_center: center,
+    clinic_name: centers[0] || '',
+    docube_center: centers[0] || '',
+    docube_centers: centers,
     clinic_phone: document.getElementById('f_cphone').value.trim(),
     consultation_hours: hours,
     appointment_type: document.querySelector('input[name="appt"]:checked')?.value,
