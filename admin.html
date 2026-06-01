@@ -130,6 +130,7 @@
     <span class="nav-logo-text"><b>DOC</b>UBE</span>
   </a>
   <div class="nav-spacer"></div>
+  <a class="nav-btn nav-btn-ghost" href="ticket.html">Raise a Ticket</a>
   <a class="nav-btn nav-btn-orange" href="index.html">GMB Onboarding</a>
 </nav>
 
@@ -198,7 +199,7 @@
       </div>
       <div class="table-wrap">
         <table class="tbl">
-          <thead><tr><th>Doctor</th><th>Request Type</th><th>Description</th><th>Raised On</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>Doctor</th><th>Request Type</th><th>Current Value</th><th>Requested Change</th><th>Raised On</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="ticketsTbl"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Loading…</td></tr></tbody>
         </table>
       </div>
@@ -346,16 +347,37 @@ async function loadTickets() {
   if (filter) params += `&status=eq.${filter}`;
   try {
     const tickets = await sbGet('gmb_tickets', params);
-    document.getElementById('ticketsTbl').innerHTML = tickets.map(t => `
-      <tr>
+    document.getElementById('ticketsTbl').innerHTML = tickets.map(t => {
+      const oldVal = formatTicketValue(t.old_value);
+      const newVal = formatTicketValue(t.new_value);
+      return `<tr>
         <td><strong>${t.doctor_name}</strong></td>
-        <td>${t.request_type}</td>
-        <td style="max-width:220px;font-size:12.5px;color:var(--text-mid)">${t.description}</td>
-        <td style="font-size:12px">${new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><span style="font-size:12.5px;font-weight:600;color:var(--navy)">${t.request_type}</span></td>
+        <td style="max-width:180px">${oldVal}</td>
+        <td style="max-width:180px">${newVal}</td>
+        <td style="font-size:12px;white-space:nowrap">${new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
         <td><span class="badge badge-${t.status}">${t.status}</span></td>
         <td>${t.status === 'open' ? `<button class="aab aab-green" onclick="resolveTicket('${t.id}')">Resolve</button>` : '—'}</td>
-      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">No tickets yet</td></tr>';
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-muted)">No tickets yet</td></tr>';
   } catch(e) { console.error(e); }
+}
+
+function formatTicketValue(raw) {
+  if (!raw || raw === 'null') return '<span style="color:var(--text-muted);font-size:12px">—</span>';
+  let val;
+  try { val = JSON.parse(raw); } catch(e) { return `<span style="font-size:12px;color:var(--text)">${raw}</span>`; }
+  if (val === null) return '<span style="color:var(--text-muted);font-size:12px">—</span>';
+  // Array of strings (services, languages)
+  if (Array.isArray(val) && val.length && typeof val[0] === 'string') {
+    return `<div style="display:flex;flex-wrap:wrap;gap:4px">${val.map(v => `<span style="background:var(--teal-pale);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--text-mid)">${v}</span>`).join('')}</div>`;
+  }
+  // Array of hours objects
+  if (Array.isArray(val) && val.length && val[0].day) {
+    return `<table style="font-size:11.5px;border-collapse:collapse">${val.map(h => `<tr><td style="color:var(--text-muted);font-weight:600;padding:1px 6px 1px 0;width:32px">${h.day.slice(0,3)}</td><td style="color:var(--text)">${h.closed ? '<span style="color:#e05252">Closed</span>' : `${h.open}–${h.close}`}</td></tr>`).join('')}</table>`;
+  }
+  // Plain string
+  return `<span style="font-size:12.5px;color:var(--text)">${String(val)}</span>`;
 }
 
 async function resolveTicket(id) {
