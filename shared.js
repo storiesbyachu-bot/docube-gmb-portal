@@ -8,14 +8,24 @@ async function sbQ(method, table, params = '', body = null) {
     headers: {
       'Content-Type': 'application/json',
       'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Accept': 'application/json'
     }
   };
   if (method === 'POST') opts.headers['Prefer'] = 'return=representation';
   if (method === 'PATCH') opts.headers['Prefer'] = 'return=representation';
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(`${SB_URL}/rest/v1/${table}?${params}`, opts);
-  if (!r.ok) { const e = await r.text(); throw new Error(e); }
+  if (!r.ok) {
+    const e = await r.text();
+    // Try to parse Supabase error for cleaner message
+    try {
+      const parsed = JSON.parse(e);
+      throw new Error(JSON.stringify(parsed));
+    } catch(_) {
+      throw new Error(e);
+    }
+  }
   const txt = await r.text();
   return txt ? JSON.parse(txt) : [];
 }
