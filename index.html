@@ -92,16 +92,19 @@ let allDoctors = [];
 async function loadDoctors() {
   const grid = document.getElementById('doctorGrid');
   try {
-    allDoctors = await sbGet('doctor_profiles', 'select=*&order=created_at.desc');
+    allDoctors = await sbGet('doctor_profiles', 'select=id,full_name,speciality,experience,gmb_status,docube_center,docube_centers,languages,appointment_type,fee_range&order=created_at.desc');
     buildCenterFilters();
     renderDoctors(allDoctors);
   } catch(e) {
-    grid.innerHTML = '<div class="empty-state">Could not load doctors. Please try again.</div>';
+    console.error('Load doctors error:', e.message);
+    grid.innerHTML = `<div class="empty-state">Could not load doctors: ${e.message.slice(0,100)}</div>`;
   }
 }
 
 function buildCenterFilters() {
-  const centers = ['All', ...new Set(allDoctors.map(d => d.docube_center || '').filter(Boolean).map(c => c.replace('Docube Healthcare – ', '')))];
+  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
+  const allCenters = allDoctors.flatMap(d => tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []));
+  const centers = ['All', ...new Set(allCenters.filter(Boolean).map(c => c.replace('Docube Healthcare – ', '')))];
   const bar = document.getElementById('centerFilters');
   bar.innerHTML = centers.map((c, i) => `<button class="filter-btn${i === 0 ? ' on' : ''}" onclick="filterByCenter('${c}',this)">${c}</button>`).join('');
 }
@@ -115,9 +118,13 @@ function filterByCenter(center, btn) {
 }
 
 function filterDoctors() {
+  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
   const q = document.getElementById('searchInput').value.toLowerCase();
   let docs = allDoctors;
-  if (activeCenter !== 'All') docs = docs.filter(d => (d.docube_center || '').includes(activeCenter));
+  if (activeCenter !== 'All') docs = docs.filter(d => {
+    const centers = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
+    return centers.some(c => c.includes(activeCenter));
+  });
   if (q) docs = docs.filter(d =>
     (d.full_name || '').toLowerCase().includes(q) ||
     (d.speciality || '').toLowerCase().includes(q) ||
@@ -129,7 +136,12 @@ function filterDoctors() {
 function renderDoctors(docs) {
   const grid = document.getElementById('doctorGrid');
   if (!docs.length) { grid.innerHTML = '<div class="empty-state"><p>No doctors found.</p></div>'; return; }
-  grid.innerHTML = docs.map(d => `
+  const tryParse = (val, fb) => { if (!val) return fb; if (typeof val === 'object') return val; try { return JSON.parse(val); } catch(e) { return fb; } };
+  grid.innerHTML = docs.map(d => {
+    const langs = tryParse(d.languages, []);
+    const centers = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
+    const centerLabel = centers.map(c => c.replace('Docube Healthcare – ','')).join(', ');
+    return `
     <a class="dl-card" href="profile.html?doctor=${d.id}">
       <div class="dl-card-top">
         <div class="dl-avatar">${initials(d.full_name)}</div>
@@ -141,16 +153,17 @@ function renderDoctors(docs) {
       <div class="dl-tags">
         <span class="dl-tag">${d.experience}</span>
         ${d.gmb_status === 'live' ? '<span class="badge badge-live">GMB Live</span>' : '<span class="badge badge-pending">GMB Pending</span>'}
-        ${(d.languages || []).slice(0, 2).map(l => `<span class="dl-tag">${l}</span>`).join('')}
+        ${langs.slice(0, 2).map(l => `<span class="dl-tag">${l}</span>`).join('')}
       </div>
       <div class="dl-foot">
         <span class="dl-center">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${(d.docube_center || '').replace('Docube Healthcare – ', '')}
+          ${centerLabel || '—'}
         </span>
         <span class="dl-book">Book <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
       </div>
-    </a>`).join('');
+    </a>`;
+  }).join('');
 }
 
 loadDoctors();
