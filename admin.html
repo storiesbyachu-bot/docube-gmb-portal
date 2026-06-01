@@ -161,7 +161,7 @@
       <div style="font-size:12px;font-weight:700;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Recent Submissions</div>
       <div class="table-wrap">
         <table class="tbl">
-          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Submitted</th><th>GMB Status</th></tr></thead>
+          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Submitted</th><th>GMB Status</th><th>GMB Page</th></tr></thead>
           <tbody id="recentTbl"><tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text-muted)">Loading…</td></tr></tbody>
         </table>
       </div>
@@ -222,26 +222,31 @@ function switchTab(tab) {
 // ── DASHBOARD ──
 async function loadDashboard() {
   try {
-    const docs = await sbGet('doctor_profiles', 'select=id,gmb_status,full_name,speciality,docube_center,created_at&order=created_at.desc');
+    const docs = await sbGet('doctor_profiles', 'select=id,gmb_status,full_name,speciality,docube_center,created_at,docube_profile_url,gmb_live_url&order=created_at.desc');
     const total = docs.length;
-    const pending = docs.filter(d => !d.gmb_status || d.gmb_status === 'pending').length;
+    const notLive = docs.filter(d => d.gmb_status !== 'live').length;
     const live = docs.filter(d => d.gmb_status === 'live').length;
     const openTkts = await sbGet('gmb_tickets', 'select=id&status=eq.open').catch(() => []);
 
     document.getElementById('statRow').innerHTML = `
       <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total Doctors</div></div>
-      <div class="stat-card orange"><div class="stat-val">${pending}</div><div class="stat-lbl">GMB Pending</div></div>
+      <div class="stat-card orange"><div class="stat-val">${notLive}</div><div class="stat-lbl">GMB Not Live</div></div>
       <div class="stat-card green"><div class="stat-val">${live}</div><div class="stat-lbl">GMB Live</div></div>
       <div class="stat-card teal"><div class="stat-val">${openTkts.length}</div><div class="stat-lbl">Open Tickets</div></div>`;
 
-    document.getElementById('recentTbl').innerHTML = docs.slice(0, 10).map(d => `
+    document.getElementById('recentTbl').innerHTML = docs.map(d => `
       <tr>
         <td><strong>${d.full_name}</strong></td>
-        <td>${d.speciality || '—'}</td>
+        <td style="font-size:12px">${d.speciality || '—'}</td>
         <td style="font-size:12px">${(d.docube_center || '').replace('Docube Healthcare – ','')}</td>
         <td style="font-size:12px">${new Date(d.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
         <td><span class="badge badge-${d.gmb_status || 'pending'}">${d.gmb_status || 'pending'}</span></td>
-      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions yet</td></tr>';
+        <td>
+          ${d.gmb_live_url
+            ? `<a href="${d.gmb_live_url}" target="_blank" style="font-size:12px;color:var(--teal-dark);text-decoration:none;font-weight:600">View GMB →</a>`
+            : `<button class="aab aab-teal" onclick="openGmbUrlModal('${d.id}','${d.full_name.replace(/'/g,"\\'")}','')">+ Set GMB URL</button>`}
+        </td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions yet</td></tr>';
   } catch(e) { console.error(e); }
 }
 
@@ -287,7 +292,7 @@ async function loadGmbStatus() {
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
             ${d.docube_profile_url ? `<a href="${d.docube_profile_url}" target="_blank" class="aab aab-teal">View on Docube</a>` : ''}
-            <button class="aab aab-teal" onclick="openUrlModal('${d.id}','${d.full_name.replace(/'/g,"\\'")}','${(d.docube_profile_url||'').replace(/'/g,"\\'")}')">
+            <button class="aab aab-teal" onclick="openDocubeUrlModal('${d.id}','${d.full_name.replace(/'/g,"\\'")}','${(d.docube_profile_url||'').replace(/'/g,"\\'")}')">
               ${d.docube_profile_url ? 'Edit URL' : '+ Set URL'}
             </button>
             <select onchange="updateGmbStatus('${d.id}',this.value)" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
@@ -331,15 +336,40 @@ function openUrlModal(id, name, currentUrl) {
   setTimeout(() => document.getElementById('urlInput').focus(), 100);
 }
 function closeUrlModal() { document.getElementById('urlModal').classList.remove('show'); urlModalId = null; }
+
+// GMB Live URL modal (reuses same modal with different save target)
+let urlModalField = 'docube_profile_url';
+function openGmbUrlModal(id, name, currentUrl) {
+  urlModalField = 'gmb_live_url';
+  urlModalId = id;
+  document.getElementById('urlModalSub').textContent = `GMB Page URL for ${name}`;
+  document.getElementById('urlInput').value = currentUrl || '';
+  document.getElementById('urlInput').placeholder = 'https://g.page/doctor-name or https://maps.google.com/...';
+  document.getElementById('urlModal').classList.add('show');
+  setTimeout(() => document.getElementById('urlInput').focus(), 100);
+}
+function openDocubeUrlModal(id, name, currentUrl) {
+  urlModalField = 'docube_profile_url';
+  urlModalId = id;
+  document.getElementById('urlModalSub').textContent = name;
+  document.getElementById('urlInput').value = currentUrl || '';
+  document.getElementById('urlInput').placeholder = 'https://www.docube.in/doctor/dr-name';
+  document.getElementById('urlModal').classList.add('show');
+  setTimeout(() => document.getElementById('urlInput').focus(), 100);
+}
 async function saveDocubeUrl() {
   const url = document.getElementById('urlInput').value.trim();
   if (!urlModalId) return;
   try {
-    await sbPatch('doctor_profiles', `id=eq.${urlModalId}`, { docube_profile_url: url || null });
+    await sbPatch('doctor_profiles', `id=eq.${urlModalId}`, { [urlModalField]: url || null });
     toast('URL saved!');
     closeUrlModal();
+    loadDashboard();
     loadGmbStatus();
-  } catch(e) { toast('Save failed', 'error'); }
+  } catch(e) {
+    console.error('URL save error:', e.message);
+    toast('Save failed: ' + e.message.slice(0,60), 'error');
+  }
 }
 document.getElementById('urlModal').addEventListener('click', e => { if (e.target === document.getElementById('urlModal')) closeUrlModal(); });
 document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveDocubeUrl(); });
