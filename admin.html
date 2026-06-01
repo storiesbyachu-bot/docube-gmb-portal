@@ -46,6 +46,16 @@
 .ab-green:hover{background:var(--success);color:#fff}
 .admin-section{display:none}
 .admin-section.on{display:block}
+.modal-overlay{position:fixed;inset:0;background:rgba(11,31,53,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:var(--r);padding:28px;max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative}
+.modal-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text-muted);font-family:inherit}
+.url-cell{max-width:200px}
+.url-cell a{font-size:12px;color:var(--teal-dark);text-decoration:none;word-break:break-all;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.url-cell a:hover{text-decoration:underline}
+.url-missing{font-size:12px;color:var(--text-muted);font-style:italic}
 </style>
 </head>
 <body>
@@ -139,10 +149,28 @@
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Phone</th><th>GMB Status</th><th>Profile</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Phone</th><th>GMB Status</th><th>Docube Profile URL</th><th>Actions</th></tr></thead>
           <tbody id="allDoctorsTbl"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Docube Profile URL Modal -->
+<div class="modal-overlay" id="urlModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeUrlModal()">✕</button>
+    <div class="modal-title">Set Docube Profile URL</div>
+    <div class="modal-sub" id="urlModalSub">Add the doctor's existing Docube.in profile link</div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Docube Profile URL</label>
+      <input type="text" id="urlInput" placeholder="https://www.docube.in/doctor/dr-name" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;outline:none">
+      <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px">Example: https://www.docube.in/doctor/dr-apurva-mittal</p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button style="padding:9px 20px;border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted)" onclick="closeUrlModal()">Cancel</button>
+      <button style="padding:9px 20px;border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:var(--teal-dark);color:#fff" onclick="saveDocubeUrl()">Save URL</button>
     </div>
   </div>
 </div>
@@ -243,9 +271,13 @@ async function loadAdminDoctors() {
         <td style="font-size:12px">${(d.docube_center || '').replace('Docube Healthcare – ','')}</td>
         <td style="font-size:12px">${d.phone || d.clinic_phone || '—'}</td>
         <td><span class="badge badge-${d.gmb_status || 'pending'}">${d.gmb_status || 'pending'}</span></td>
-        <td>
-          <button class="admin-action-btn ab-teal" onclick="copyLink('${profileBase}?doctor=${d.id}')">Copy Link</button>
-          <a class="admin-action-btn ab-teal" href="profile.html?doctor=${d.id}" target="_blank">View</a>
+        <td class="url-cell">
+          ${d.docube_profile_url
+            ? `<a href="${d.docube_profile_url}" target="_blank" title="${d.docube_profile_url}">${d.docube_profile_url.replace('https://www.docube.in','docube.in')}</a>`
+            : `<span class="url-missing">Not set</span>`}
+          <button class="admin-action-btn ab-teal" style="margin-top:5px;display:block" onclick="openUrlModal('${d.id}','${d.full_name}','${(d.docube_profile_url||'').replace(/'/g,"\\'")}')">
+            ${d.docube_profile_url ? 'Edit URL' : '+ Set URL'}
+          </button>
         </td>
         <td>
           ${d.gmb_status !== 'live' ? `<button class="admin-action-btn ab-green" onclick="updateGmbStatus('${d.id}','live')">Set Live</button>` : ''}
@@ -285,6 +317,33 @@ async function deleteDoctor(id) {
 function copyLink(url) {
   navigator.clipboard.writeText(url).then(() => toast('Profile link copied!')).catch(() => { prompt('Copy this link:', url); });
 }
+
+let urlModalDoctorId = null;
+function openUrlModal(id, name, currentUrl) {
+  urlModalDoctorId = id;
+  document.getElementById('urlModalSub').textContent = `Doctor: ${name}`;
+  document.getElementById('urlInput').value = currentUrl || '';
+  document.getElementById('urlInput').focus();
+  document.getElementById('urlModal').classList.add('show');
+}
+function closeUrlModal() {
+  document.getElementById('urlModal').classList.remove('show');
+  urlModalDoctorId = null;
+}
+async function saveDocubeUrl() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!urlModalDoctorId) return;
+  try {
+    await sbPatch('doctor_profiles', `id=eq.${urlModalDoctorId}`, { docube_profile_url: url || null });
+    toast('Profile URL saved!');
+    closeUrlModal();
+    loadAdminDoctors();
+  } catch(e) { toast('Save failed. Try again.', 'error'); }
+}
+// Close modal on overlay click
+document.getElementById('urlModal').addEventListener('click', e => { if (e.target === document.getElementById('urlModal')) closeUrlModal(); });
+// Enter key in URL input
+document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveDocubeUrl(); });
 
 // Init
 loadDashboard();
