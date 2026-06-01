@@ -590,32 +590,58 @@ async function submitForm() {
   document.getElementById('submitSpinner').style.display = 'block';
   document.getElementById('submitIcon').style.display = 'none';
   btn.disabled = true;
-  const hours = DAYS.map(d => ({ day: d, open: document.getElementById('ho-'+d).value, close: document.getElementById('hc-'+d).value, closed: document.getElementById('hx-'+d).checked }));
+
+  const hours = DAYS.map(d => ({
+    day: d,
+    open: document.getElementById('ho-'+d).value,
+    close: document.getElementById('hc-'+d).value,
+    closed: document.getElementById('hx-'+d).checked
+  }));
   const centers = [...document.querySelectorAll('input[name="docube_center"]:checked')].map(i => i.value);
+  const services = getChecked('servChips');
+  const languages = getChecked('langChips');
+
   const data = {
-    full_name: document.getElementById('f_name').value.trim(),
-    speciality: resolveOther('f_spec', 'f_spec_other'),
-    qualifications: document.getElementById('f_quals').value.trim(),
-    experience: document.getElementById('f_exp').value,
-    phone: document.getElementById('f_phone').value.trim(),
-    whatsapp: document.getElementById('f_wa').value.trim(),
-    email: document.getElementById('f_email').value.trim(),
-    clinic_name: centers[0] || '',
-    docube_center: centers[0] || '',
-    docube_centers: centers,
-    clinic_phone: document.getElementById('f_cphone').value.trim(),
-    consultation_hours: hours,
-    appointment_type: document.querySelector('input[name="appt"]:checked')?.value,
-    fee_range: document.querySelector('input[name="fee"]:checked')?.value,
-    services: getChecked('servChips'),
-    languages: getChecked('langChips'),
-    bio: document.getElementById('f_bio').value.trim(),
-    notes: document.getElementById('f_notes').value.trim(),
-    existing_gmb: document.querySelector('input[name="gmb"]:checked')?.value,
-    gmb_existing_link: document.getElementById('gmb_existing_link').value.trim(),
-    gmb_access_confirmed: document.querySelector('input[name="gmb_access_confirmed"]:checked')?.value || null,
-    gmb_status: 'pending'
+    // Step 1 — Personal
+    full_name:            document.getElementById('f_name').value.trim(),
+    speciality:           resolveOther('f_spec', 'f_spec_other'),
+    qualifications:       document.getElementById('f_quals').value.trim(),
+    experience:           document.getElementById('f_exp').value,
+    phone:                document.getElementById('f_phone').value.trim(),
+    whatsapp:             document.getElementById('f_wa').value.trim(),
+    email:                document.getElementById('f_email').value.trim(),
+
+    // Step 2 — Practice
+    clinic_name:          centers[0] || '',
+    docube_center:        centers[0] || '',
+    docube_centers:       JSON.stringify(centers),
+    clinic_phone:         document.getElementById('f_cphone').value.trim(),
+
+    // Step 3 — Hours & Services
+    consultation_hours:   JSON.stringify(hours),
+    appointment_type:     document.querySelector('input[name="appt"]:checked')?.value || '',
+    fee_range:            document.querySelector('input[name="fee"]:checked')?.value || '',
+    services:             JSON.stringify(services),
+
+    // Step 4 — Languages, Bio, GMB status
+    languages:            JSON.stringify(languages),
+    bio:                  document.getElementById('f_bio').value.trim(),
+    notes:                document.getElementById('f_notes').value.trim(),
+    existing_gmb:         document.querySelector('input[name="gmb"]:checked')?.value || '',
+    gmb_existing_link:    document.getElementById('gmb_existing_link').value.trim(),
+    gmb_access_confirmed: document.querySelector('input[name="gmb_access_confirmed"]:checked')?.value || '',
+
+    // Step 5 — GMB Profile info
+    gmb_full_name:        document.getElementById('gmb_full_name').value.trim(),
+    gmb_qualifications:   document.getElementById('gmb_qualifications').value.trim(),
+    gmb_experience:       document.getElementById('gmb_experience').value,
+    gmb_speciality:       resolveOther('gmb_speciality', 'gmb_speciality_other'),
+    gmb_home_visits:      document.querySelector('input[name="home_visit"]:checked')?.value || '',
+    gmb_service_area:     document.getElementById('gmb_service_area').value.trim(),
+
+    gmb_status:           'pending'
   };
+
   try {
     const result = await sbPost('doctor_profiles', data);
     const created = Array.isArray(result) ? result[0] : result;
@@ -624,8 +650,10 @@ async function submitForm() {
     document.getElementById('obSuccess').classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch(e) {
-    console.error('Submission error:', e.message);
-    toast(`Submission failed: ${e.message.slice(0, 80)}`, 'error');
+    let msg = e.message;
+    try { const parsed = JSON.parse(e.message); msg = `${parsed.code}: ${parsed.message}`; } catch(_) {}
+    console.error('Full submission error:', e.message);
+    toast(`Submission failed: ${msg.slice(0, 120)}`, 'error');
     document.getElementById('submitTxt').textContent = 'Submit to Docube';
     document.getElementById('submitSpinner').style.display = 'none';
     document.getElementById('submitIcon').style.display = 'block';
