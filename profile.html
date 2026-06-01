@@ -116,13 +116,42 @@ function renderProfile(d) {
   d.services           = tryParse(d.services, []);
   d.languages          = tryParse(d.languages, []);
   d.docube_centers     = tryParse(d.docube_centers, d.docube_center ? [d.docube_center] : []);
-  const bioHTML = d.bio ? `<div class="prof-sec"><div class="prof-sec-t">About</div><p style="font-size:14px;color:var(--text-mid);line-height:1.7">${d.bio}</p></div>` : '';
-  const hoursHTML = (d.consultation_hours || []).map(h => `<tr><td class="dc">${h.day.slice(0,3)}</td><td>${h.closed ? '<span class="closed-badge">Closed</span>' : `${h.open} – ${h.close}`}</td></tr>`).join('');
+
+  const centers = getCenters(d);
+
   const metaHTML = [
-    d.docube_center ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${getCenters(d).map(c=>c.replace('Docube Healthcare – ','Docube ')).join(' · ')}</span>` : '',
+    centers.length ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${centers.map(c=>c.replace('Docube Healthcare – ','Docube ')).join(' · ')}</span>` : '',
     d.appointment_type ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${d.appointment_type}</span>` : '',
-    d.gmb_status === 'live' ? '<span class="badge badge-live" style="margin-left:4px">GMB Live</span>' : '<span class="badge badge-pending" style="margin-left:4px">GMB Pending</span>',
-  ].join('');
+    d.fee_range ? `<span class="pmeta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>${d.fee_range}</span>` : '',
+    `<span class="badge badge-${d.gmb_status === 'live' ? 'live' : 'pending'}">${d.gmb_status === 'live' ? 'GMB Live' : 'GMB Pending'}</span>`,
+  ].filter(Boolean).join('');
+
+  const hoursHTML = d.consultation_hours.map(h =>
+    `<tr><td class="dc">${h.day.slice(0,3)}</td><td>${h.closed ? '<span class="closed-badge">Closed</span>' : `${h.open} – ${h.close}`}</td></tr>`
+  ).join('');
+
+  // GMB section — only show if data exists
+  const gmbInfoHTML = (d.gmb_full_name || d.gmb_qualifications || d.gmb_experience || d.gmb_speciality || d.gmb_home_visits || d.gmb_service_area || d.existing_gmb || d.gmb_existing_link) ? `
+    <div class="prof-sec">
+      <div class="prof-sec-t">GMB Profile Details</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        ${d.gmb_full_name ? `<tr><td style="color:var(--text-muted);padding:5px 0;width:140px;font-weight:600">Name on Google</td><td style="padding:5px 0;color:var(--text)">${d.gmb_full_name}</td></tr>` : ''}
+        ${d.gmb_qualifications ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Qualifications</td><td style="padding:5px 0;color:var(--text)">${d.gmb_qualifications}</td></tr>` : ''}
+        ${d.gmb_experience ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Experience</td><td style="padding:5px 0;color:var(--text)">${d.gmb_experience}</td></tr>` : ''}
+        ${d.gmb_speciality ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">GMB Speciality</td><td style="padding:5px 0;color:var(--text)">${d.gmb_speciality}</td></tr>` : ''}
+        ${d.gmb_home_visits ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Home Visits</td><td style="padding:5px 0;color:var(--text)">${d.gmb_home_visits}</td></tr>` : ''}
+        ${d.gmb_service_area ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Service Area</td><td style="padding:5px 0;color:var(--text)">${d.gmb_service_area}</td></tr>` : ''}
+        ${d.existing_gmb ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Existing GMB</td><td style="padding:5px 0;color:var(--text)">${d.existing_gmb}</td></tr>` : ''}
+        ${d.gmb_existing_link ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">GMB Link</td><td style="padding:5px 0"><a href="${d.gmb_existing_link}" target="_blank" style="color:var(--teal-dark);word-break:break-all">${d.gmb_existing_link}</a></td></tr>` : ''}
+        ${d.gmb_access_confirmed ? `<tr><td style="color:var(--text-muted);padding:5px 0;font-weight:600">Access</td><td style="padding:5px 0;color:var(--text)">${d.gmb_access_confirmed === 'done' ? '✓ Access already given' : 'Will give access after submission'}</td></tr>` : ''}
+      </table>
+    </div>` : '';
+
+  const notesHTML = d.notes ? `
+    <div class="prof-sec">
+      <div class="prof-sec-t">Notes for Docube Team</div>
+      <p style="font-size:13.5px;color:var(--text-mid);line-height:1.65">${d.notes}</p>
+    </div>` : '';
 
   document.getElementById('profileContent').innerHTML = `
     <div class="prof-hero fadein">
@@ -138,45 +167,46 @@ function renderProfile(d) {
     </div>
     <div class="prof-body fadein">
       <div>
-        ${bioHTML}
+        ${d.bio ? `<div class="prof-sec"><div class="prof-sec-t">About</div><p style="font-size:14px;color:var(--text-mid);line-height:1.7">${d.bio}</p></div>` : ''}
+
         <div class="prof-sec">
           <div class="prof-sec-t">Services & Conditions</div>
-          <div class="srv-tags">${(d.services || []).map(s => `<span class="srv-tag">${s}</span>`).join('') || '<span style="color:var(--text-muted);font-size:13px">Not specified</span>'}</div>
+          <div class="srv-tags">${d.services.map(s=>`<span class="srv-tag">${s}</span>`).join('') || '<span style="color:var(--text-muted);font-size:13px">Not specified</span>'}</div>
         </div>
+
         <div class="prof-sec">
           <div class="prof-sec-t">Consultation Hours</div>
           <table class="hours-tbl">${hoursHTML}</table>
         </div>
+
         <div class="prof-sec">
           <div class="prof-sec-t">Languages</div>
-          <div class="srv-tags">${(d.languages || []).map(l => `<span class="srv-tag">${l}</span>`).join('')}</div>
+          <div class="srv-tags">${d.languages.map(l=>`<span class="srv-tag">${l}</span>`).join('') || '—'}</div>
         </div>
+
+        ${gmbInfoHTML}
+        ${notesHTML}
       </div>
       <div>
         <div class="book-card">
           <div class="book-card-title">Book Consultation</div>
-          <div class="book-card-sub">Available at Docube</div>
-          ${getCenters(d).length > 1 ? `
+          ${centers.length > 1 ? `
           <div style="margin-bottom:14px">
             <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Select Center</div>
             <div style="display:flex;flex-direction:column;gap:6px" id="centerPicker">
-              ${getCenters(d).map((c,i) => `<label style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.06);border:1.5px solid ${i===0?'rgba(77,217,217,.4)':'rgba(255,255,255,.1)'};border-radius:8px;cursor:pointer;transition:all .16s" onclick="pickCenter(this,'${c}')">
-                <input type="radio" name="bookCenter" value="${c}" ${i===0?'checked':''} style="display:none">
-                <span style="width:14px;height:14px;border-radius:50%;border:2px solid ${i===0?'var(--teal)':'rgba(255,255,255,.3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0" class="center-radio-dot">${i===0?'<span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:block"></span>':''}</span>
-                <span style="font-size:12.5px;color:rgba(255,255,255,.8)">${c.replace('Docube Healthcare – ','')}</span>
-              </label>`).join('')}
+              ${centers.map((c,i) => `
+                <label style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.06);border:1.5px solid ${i===0?'rgba(77,217,217,.4)':'rgba(255,255,255,.1)'};border-radius:8px;cursor:pointer" onclick="pickCenter(this,'${c}')">
+                  <input type="radio" name="bookCenter" value="${c}" ${i===0?'checked':''} style="display:none">
+                  <span style="width:14px;height:14px;border-radius:50%;border:2px solid ${i===0?'var(--teal)':'rgba(255,255,255,.3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0" class="center-radio-dot">${i===0?'<span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:block"></span>':''}</span>
+                  <span style="font-size:12.5px;color:rgba(255,255,255,.8)">${c.replace('Docube Healthcare – ','')}</span>
+                </label>`).join('')}
             </div>
-          </div>` : `<div class="book-card-sub" style="margin-bottom:14px">${getCenters(d)[0]?.replace('Docube Healthcare – ','Docube ') || 'Docube Healthcare'}</div>`}
+          </div>` : `<div class="book-card-sub" style="margin-bottom:14px">${centers[0]?.replace('Docube Healthcare – ','Docube ') || 'Docube Healthcare'}</div>`}
           <div class="fee-row"><span class="fee-label">Consultation Fee</span><span class="fee-val">${d.fee_range || '—'}</span></div>
           <a href="booking.html?doctor=${d.id}" id="bookBtn" class="btn btn-orange btn-lg" style="width:100%;justify-content:center">Book Appointment →</a>
-          <div class="contact-row">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16l.19.92z"/></svg>
-            <a href="tel:${d.clinic_phone || d.phone}">${d.clinic_phone || d.phone || '—'}</a>
-          </div>
-          <div class="contact-row">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <a href="mailto:${d.email}">${d.email || '—'}</a>
-          </div>
+          ${d.clinic_phone || d.phone ? `<div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.32h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16z"/></svg><a href="tel:${d.clinic_phone||d.phone}">${d.clinic_phone||d.phone}</a></div>` : ''}
+          ${d.whatsapp ? `<div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><a href="https://wa.me/${d.whatsapp.replace(/\D/g,'')}" target="_blank">${d.whatsapp}</a></div>` : ''}
+          ${d.email ? `<div class="contact-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:${d.email}">${d.email}</a></div>` : ''}
           <div class="prof-share" onclick="shareProfile()">
             <span class="prof-share-txt">Share doctor profile link</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
