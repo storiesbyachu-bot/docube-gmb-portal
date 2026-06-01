@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docube — GMB Change Request</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.tk-hero{background:var(--navy);padding:48px 20px 44px;position:relative;overflow:hidden}
+.tk-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 100% at 80% -10%,rgba(77,217,217,.18) 0%,transparent 55%),radial-gradient(ellipse 40% 50% at -5% 100%,rgba(245,166,35,.12) 0%,transparent 50%)}
+.tk-hero-inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.tk-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.35);color:var(--orange);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:16px}
+.tk-hero h1{font-family:'Instrument Serif',serif;font-size:clamp(26px,4vw,38px);color:#fff;line-height:1.15;margin-bottom:10px}
+.tk-hero h1 i{color:var(--teal);font-style:italic}
+.tk-hero p{font-size:14px;color:rgba(255,255,255,.5);font-weight:300;line-height:1.65;max-width:480px}
+.tk-body{max-width:680px;margin:0 auto;padding:0 20px 80px}
+.tk-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:30px;margin-top:22px;box-shadow:var(--shadow-sm)}
+.tk-card-title{font-family:'Instrument Serif',serif;font-size:20px;color:var(--navy);margin-bottom:4px}
+.tk-card-sub{font-size:12.5px;color:var(--text-muted);margin-bottom:22px}
+
+/* Current value display */
+.current-val-box{background:var(--cream);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:12px 15px;margin-bottom:8px}
+.current-val-label{font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+.current-val{font-size:13.5px;color:var(--text);font-weight:500}
+
+/* Hours grid */
+.hours-wrap{display:grid;gap:7px}
+.hour-row{display:grid;grid-template-columns:80px 1fr 12px 1fr 86px;align-items:center;gap:7px;padding:8px 12px;background:var(--cream);border:1px solid var(--border-light);border-radius:var(--r-sm)}
+@media(max-width:560px){.hour-row{grid-template-columns:1fr;gap:5px}}
+.day-lbl{font-size:12px;font-weight:600;color:var(--text)}
+.hr-sep{text-align:center;color:var(--text-muted);font-size:11px}
+.closed-w{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+.closed-lbl{font-size:11px;color:var(--text-muted);white-space:nowrap}
+input[type=checkbox]{width:14px;height:14px;accent-color:var(--teal-dark);cursor:pointer}
+.hour-row.is-closed input[type=time]{opacity:.3;pointer-events:none}
+
+/* Chips */
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px}
+.chips.langs{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.chip{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all .15s;background:#fff;user-select:none}
+.chip:hover,.chip.on{border-color:var(--teal-dark);background:var(--teal-pale)}
+.chip-box{width:16px;height:16px;border:1.5px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;pointer-events:none;transition:all .15s}
+.chip.on .chip-box{background:var(--teal-dark);border-color:var(--teal-dark)}
+.chip-ck{display:none;pointer-events:none}
+.chip.on .chip-ck{display:block}
+.chip-lbl{font-size:12.5px;color:var(--text);pointer-events:none}
+
+.loading-spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<nav class="topnav">
+  <a class="nav-logo" href="index.html">
+    <svg viewBox="0 0 44 22" fill="none">
+      <polyline points="0,11 5,11 7.5,4 10,18 12.5,7 15,14 18,11 22,11" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="25" y1="3" x2="25" y2="19" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="29" y1="1" x2="29" y2="21" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="33" y1="4" x2="33" y2="18" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="37" y1="7" x2="37" y2="15" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="41" y1="9" x2="41" y2="13" stroke="#4DD9D9" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-logo-text"><b>DOC</b>UBE</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <a class="nav-btn nav-btn-admin" href="admin.html">Admin</a>
+</nav>
+
+<div class="tk-hero">
+  <div class="tk-hero-inner">
+    <div class="tk-badge">GMB Change Request</div>
+    <h1>Update Your <i>Google Profile</i></h1>
+    <p>Select your name, choose what needs to be updated, and our team will action it within 2 business days.</p>
+  </div>
+</div>
+
+<div class="tk-body fadein">
+  <div class="tk-card">
+    <div class="tk-card-title">Who are you?</div>
+    <div class="tk-card-sub">Select your name to load your current profile details</div>
+    <div class="fg one">
+      <div class="f">
+        <label class="lbl">Select Doctor <span class="req">*</span></label>
+        <select id="doctorSelect" onchange="onDoctorChange()">
+          <option value="">Loading doctors…</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change type card — shown after doctor selected -->
+  <div class="tk-card" id="typeCard" style="display:none">
+    <div class="tk-card-title">What needs to change?</div>
+    <div class="tk-card-sub">Select the type of update — we'll show your current value and let you enter the new one</div>
+    <div class="f">
+      <label class="lbl">Request Type <span class="req">*</span></label>
+      <select id="requestType" onchange="onTypeChange()">
+        <option value="">Select request type…</option>
+        <option value="business_name">Business Name</option>
+        <option value="phone">Phone Number</option>
+        <option value="hours">Working Hours</option>
+        <option value="services">Services / Conditions Treated</option>
+        <option value="languages">Languages</option>
+        <option value="bio">About / Bio</option>
+        <option value="fee">Consultation Fee</option>
+        <option value="photos">Add / Update Photos</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Dynamic change fields -->
+  <div class="tk-card" id="changeCard" style="display:none">
+    <div class="tk-card-title" id="changeCardTitle">Update</div>
+    <div class="tk-card-sub">Your current value is shown below. Fill in what you'd like it changed to.</div>
+    <div id="changeFields"></div>
+    <div class="form-nav" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border-light)">
+      <span></span>
+      <button class="btn btn-teal btn-lg" id="submitBtn" onclick="submitTicket()">
+        <span id="submitTxt">Submit Request</span>
+        <div class="spinner" id="submitSpinner"></div>
+        <svg id="submitIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div class="success-card" id="tkSuccess">
+    <div class="success-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="success-h">Request Submitted!</div>
+    <p class="success-p">The Docube team will review and action your GMB change within <strong>2 business days</strong>.</p>
+    <button class="success-cta" onclick="resetForm()">Submit Another Request</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const SERVICES_BY_SPEC = {
+  'General Physician / Family Medicine':['General Consultation','Fever & Infections','Diabetes Management','Hypertension','Thyroid Disorders','Preventive Health Checkup','Chronic Disease Management','Vaccinations','Nutrition & Diet Advice','Respiratory Illness','Anaemia','Lifestyle Disorders'],
+  'Obstetrics & Gynaecology':['Antenatal Care','Postnatal Care','Normal Delivery','C-Section','PCOD / PCOS','Menstrual Disorders','Infertility Evaluation','Menopause Management','Pap Smear','Ultrasound Scan','Family Planning','Gynaecological Surgeries'],
+  'Dermatology & Cosmetology':['Acne & Pimples','Hair Loss Treatment','Skin Allergy','Eczema & Psoriasis','Chemical Peel','Laser Hair Removal','PRP Therapy','Anti-Ageing Treatments','Pigmentation','Wart & Mole Removal','Vitiligo','Nail Disorders'],
+  'Orthopaedics':['Knee Pain','Back & Spine Pain','Joint Replacement','Sports Injuries','Fracture Treatment','Arthritis Management','Shoulder Pain','Physiotherapy Referral','Bone Density Testing','Ligament Repair','Disc Problems','Orthopaedic Surgery'],
+  'Neurology':['Headache & Migraine','Epilepsy','Stroke Management','Parkinson\'s Disease','Memory Disorders','Multiple Sclerosis','Neuropathy','Vertigo & Dizziness','Sleep Disorders','EEG','Nerve Conduction Study','Dementia'],
+  'Cardiology':['Chest Pain Evaluation','ECG','Echocardiography','Hypertension Management','Heart Failure','Arrhythmia','Coronary Artery Disease','Cholesterol Management','TMT / Stress Test','Pacemaker Follow-up','Cardiac Rehabilitation','Preventive Cardiology'],
+  'ENT Specialist':['Ear Pain & Infections','Hearing Loss','Sinusitis','Tonsillitis','Nasal Polyps','Voice & Speech Problems','Tinnitus','Vertigo','Sleep Apnoea','Adenoid Problems','Throat Infections','ENT Surgery'],
+  'Psychiatry & Mental Health':['Depression & Anxiety','OCD','Bipolar Disorder','Schizophrenia','ADHD','Addiction & De-addiction','Stress Management','Cognitive Behavioural Therapy','Child & Adolescent Psychiatry','Sleep Disorders','PTSD','Psychological Counselling'],
+  'Respiratory Medicine':['Asthma','COPD','Breathlessness','Chronic Cough','Pulmonary Function Test','Sleep Apnoea','Tuberculosis','Lung Infections','Allergy Testing','Nebulisation','Oxygen Therapy','Bronchoscopy'],
+  'Gastroenterology':['Acidity & GERD','IBS','Liver Disease','Colonoscopy','Endoscopy','Crohn\'s Disease','Jaundice','Hepatitis','Constipation','Abdominal Pain','Fatty Liver','Colon Cancer Screening'],
+  'Paediatrics':['Well Baby Checkup','Vaccination','Growth & Development','Fever in Children','Newborn Care','Child Nutrition','Paediatric Allergies','Asthma in Children','ADHD in Children','Ear Infections','Diarrhoea & Dehydration','Paediatric Surgery Referral'],
+  'Dentistry':['Dental Checkup','Tooth Extraction','Root Canal Treatment','Teeth Cleaning','Braces & Aligners','Dental Implants','Cavity Filling','Gum Disease','Teeth Whitening','Crowns & Bridges','Wisdom Tooth','Paediatric Dentistry'],
+  'Physiotherapy':['Back & Neck Pain','Post-Surgery Rehabilitation','Sports Injury Rehab','Neurological Rehab','Joint Mobilisation','Electrotherapy','Dry Needling','Posture Correction','Shoulder & Knee Rehab','Stroke Rehab','Pelvic Floor Therapy','Home Physiotherapy'],
+  'Oncology':['Cancer Screening','Chemotherapy','Radiation Therapy','Tumour Biopsy','Post-Cancer Rehabilitation','Palliative Care','Blood Cancer','Breast Cancer','Lung Cancer','Colon Cancer','Cervical Cancer','Bone Marrow Transplant'],
+  'Radiology':['X-Ray','MRI Scan','CT Scan','Ultrasound','Mammography','Bone Density Scan','PET Scan','Interventional Radiology','Fluoroscopy','Doppler Study','Echocardiography Report','Nuclear Medicine'],
+  'Other':['General Consultation','Preventive Health','Chronic Disease Management','Vaccinations','Health Checkup','Lab Tests','Diagnostic Scans','Follow-up Consultation']
+};
+const DEFAULT_SERVICES = ['General Consultation','Preventive Health','Chronic Disease Management','Vaccinations','Health Checkup','Lab Tests','Diagnostic Scans','Follow-up Consultation'];
+const LANGS = ['English','Kannada','Hindi','Tamil','Telugu','Malayalam'];
+const FEES = ['Under ₹300','₹300–₹600','₹600–₹1000','₹1000–₹1500','Above ₹1500','Prefer not to say'];
+
+let allDoctors = [];
+let selectedDoctor = null;
+
+const tryParse = (val, fb) => {
+  if (!val) return fb;
+  if (typeof val === 'object') return val;
+  try { return JSON.parse(val); } catch(e) { return fb; }
+};
+
+// ── LOAD DOCTORS ──
+async function loadDoctors() {
+  try {
+    allDoctors = await sbGet('doctor_profiles', 'select=*&order=full_name.asc');
+    const sel = document.getElementById('doctorSelect');
+    sel.innerHTML = '<option value="">Select your name…</option>' +
+      allDoctors.map(d => `<option value="${d.id}">${d.full_name} — ${(d.docube_center||'').replace('Docube Healthcare – ','')}</option>`).join('');
+  } catch(e) {
+    document.getElementById('doctorSelect').innerHTML = '<option value="">Could not load doctors</option>';
+  }
+}
+
+// ── DOCTOR SELECTED ──
+function onDoctorChange() {
+  const id = document.getElementById('doctorSelect').value;
+  selectedDoctor = allDoctors.find(d => d.id === id) || null;
+  document.getElementById('typeCard').style.display = selectedDoctor ? 'block' : 'none';
+  document.getElementById('changeCard').style.display = 'none';
+  document.getElementById('requestType').value = '';
+  document.getElementById('changeFields').innerHTML = '';
+}
+
+// ── TYPE SELECTED ──
+function onTypeChange() {
+  const type = document.getElementById('requestType').value;
+  if (!type || !selectedDoctor) { document.getElementById('changeCard').style.display = 'none'; return; }
+  const d = selectedDoctor;
+  const hours = tryParse(d.consultation_hours, []);
+  const services = tryParse(d.services, []);
+  const langs = tryParse(d.languages, []);
+  const titles = {
+    business_name: 'Update Business Name',
+    phone: 'Update Phone Number',
+    hours: 'Update Working Hours',
+    services: 'Update Services',
+    languages: 'Update Languages',
+    bio: 'Update About / Bio',
+    fee: 'Update Consultation Fee',
+    photos: 'Add / Update Photos',
+    other: 'Other Change'
+  };
+  document.getElementById('changeCardTitle').textContent = titles[type];
+  document.getElementById('changeCard').style.display = 'block';
+  document.getElementById('changeFields').innerHTML = buildFields(type, d, hours, services, langs);
+  // Wire chips
+  document.querySelectorAll('#changeFields .chip').forEach(c => {
+    c.addEventListener('click', e => { e.preventDefault(); c.classList.toggle('on'); });
+  });
+  // Wire hours
+  DAYS.forEach(day => {
+    const cb = document.getElementById(`nh-hx-${day}`);
+    if (cb) cb.addEventListener('change', () => {
+      document.getElementById(`nh-hr-${day}`)?.classList.toggle('is-closed', cb.checked);
+    });
+  });
+  document.getElementById('changeCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function buildFields(type, d, hours, services, langs) {
+  switch(type) {
+    case 'business_name': return `
+      <div class="current-val-box"><div class="current-val-label">Current Name</div><div class="current-val">${d.full_name || '—'}</div></div>
+      <div class="f" style="margin-top:12px">
+        <label class="lbl">New Business Name <span class="req">*</span></label>
+        <input type="text" id="new_business_name" placeholder="e.g. Dr. Priya Sharma – Dermatologist" value="${d.full_name||''}">
+      </div>
+      <div class="f" style="margin-top:12px">
+        <label class="lbl">Additional Notes <span class="opt">(optional)</span></label>
+        <textarea id="new_notes" rows="2" placeholder="Any specific instructions for the Docube team…"></textarea>
+      </div>`;
+
+    case 'phone': return `
+      <div class="current-val-box"><div class="current-val-label">Current Phone</div><div class="current-val">${d.clinic_phone || d.phone || '—'}</div></div>
+      <div class="f" style="margin-top:12px">
+        <label class="lbl">New Phone Number <span class="req">*</span></label>
+        <input type="tel" id="new_phone" placeholder="+91 98765 43210">
+      </div>`;
+
+    case 'hours': return `
+      <div class="current-val-box" style="margin-bottom:14px">
+        <div class="current-val-label">Current Hours</div>
+        <table style="width:100%;border-collapse:collapse;margin-top:6px">
+          ${hours.map(h => `<tr><td style="font-size:12.5px;font-weight:600;color:var(--text-mid);padding:3px 0;width:80px">${h.day.slice(0,3)}</td><td style="font-size:12.5px;color:var(--text)">${h.closed ? '<span style="color:#e05252">Closed</span>' : `${h.open} – ${h.close}`}</td></tr>`).join('')}
+        </table>
+      </div>
+      <div class="f">
+        <label class="lbl">New Consultation Hours <span class="req">*</span></label>
+        <p class="f-hint" style="margin-bottom:8px">Update the days and times below</p>
+        <div class="hours-wrap" id="newHoursWrap">${buildHoursWrap(hours)}</div>
+      </div>`;
+
+    case 'services': {
+      const specServices = SERVICES_BY_SPEC[d.speciality] || DEFAULT_SERVICES;
+      return `
+        <div class="current-val-box" style="margin-bottom:14px">
+          <div class="current-val-label">Currently Listed Services</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${services.map(s => `<span style="background:var(--teal-pale);border:1px solid var(--border);border-radius:5px;padding:2px 9px;font-size:12px;color:var(--text-mid)">${s}</span>`).join('') || '<span style="font-size:12.5px;color:var(--text-muted)">None set</span>'}</div>
+        </div>
+        <div class="f">
+          <label class="lbl">New Services Selection <span class="req">*</span></label>
+          <p class="f-hint" style="margin-bottom:8px">Select all that apply</p>
+          <div class="chips" id="newServicesChips">
+            ${specServices.map(s => `<label class="chip${services.includes(s)?' on':''}" data-value="${s}"><div class="chip-box"><svg class="chip-ck" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="chip-lbl">${s}</span></label>`).join('')}
+          </div>
+        </div>`;
+    }
+
+    case 'languages': return `
+      <div class="current-val-box" style="margin-bottom:14px">
+        <div class="current-val-label">Current Languages</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">${langs.map(l => `<span style="background:var(--teal-pale);border:1px solid var(--border);border-radius:5px;padding:2px 9px;font-size:12px;color:var(--text-mid)">${l}</span>`).join('') || '<span style="font-size:12.5px;color:var(--text-muted)">None set</span>'}</div>
+      </div>
+      <div class="f">
+        <label class="lbl">New Languages <span class="req">*</span></label>
+        <div class="chips langs" id="newLangsChips" style="margin-top:8px">
+          ${LANGS.map(l => `<label class="chip${langs.includes(l)?' on':''}" data-value="${l}"><div class="chip-box"><svg class="chip-ck" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="chip-lbl">${l}</span></label>`).join('')}
+        </div>
+      </div>`;
+
+    case 'bio': return `
+      <div class="current-val-box" style="margin-bottom:14px">
+        <div class="current-val-label">Current Bio</div>
+        <div class="current-val" style="font-size:13px;line-height:1.6">${d.bio || '—'}</div>
+      </div>
+      <div class="f">
+        <label class="lbl">New Bio <span class="req">*</span></label>
+        <textarea id="new_bio" rows="4" placeholder="2–3 sentences about your expertise and approach…">${d.bio||''}</textarea>
+      </div>`;
+
+    case 'fee': return `
+      <div class="current-val-box" style="margin-bottom:14px">
+        <div class="current-val-label">Current Fee Range</div>
+        <div class="current-val">${d.fee_range || '—'}</div>
+      </div>
+      <div class="f">
+        <label class="lbl">New Fee Range <span class="req">*</span></label>
+        <div class="pills" id="newFeePills" style="margin-top:8px">
+          ${FEES.map(f => `<label class="pill${d.fee_range===f?' on':''}" onclick="pickPill(this,'newFeePills')"><input type="radio" name="new_fee" value="${f}">${f}</label>`).join('')}
+        </div>
+      </div>`;
+
+    case 'photos': return `
+      <div class="f">
+        <label class="lbl">What photos need updating? <span class="req">*</span></label>
+        <textarea id="new_photos" rows="3" placeholder="Describe what photos you'd like added or updated (e.g. profile photo, clinic interior, signage)…"></textarea>
+        <p class="f-hint" style="margin-top:5px">Our team will contact you to collect the actual photos.</p>
+      </div>`;
+
+    case 'other': return `
+      <div class="f">
+        <label class="lbl">Describe the change <span class="req">*</span></label>
+        <textarea id="new_other" rows="4" placeholder="Describe exactly what needs to be changed on your Google Business Profile…"></textarea>
+      </div>`;
+
+    default: return '';
+  }
+}
+
+function buildHoursWrap(existing) {
+  return DAYS.map(d => {
+    const ex = existing.find(h => h.day === d);
+    const closed = ex ? ex.closed : d === 'Sunday';
+    const open = ex?.open || '09:00';
+    const close = ex?.close || '18:00';
+    return `<div class="hour-row${closed?' is-closed':''}" id="nh-hr-${d}">
+      <div class="day-lbl">${d.slice(0,3)}</div>
+      <input type="time" id="nh-ho-${d}" value="${open}" ${closed?'tabindex="-1"':''}>
+      <div class="hr-sep">–</div>
+      <input type="time" id="nh-hc-${d}" value="${close}" ${closed?'tabindex="-1"':''}>
+      <div class="closed-w">
+        <input type="checkbox" id="nh-hx-${d}" ${closed?'checked':''}>
+        <label class="closed-lbl" for="nh-hx-${d}">Closed</label>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pickPill(el, groupId) {
+  document.querySelectorAll(`#${groupId} .pill`).forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ── GATHER NEW VALUE ──
+function gatherNewValue(type) {
+  const hours = tryParse(selectedDoctor.consultation_hours, []);
+  const services = tryParse(selectedDoctor.services, []);
+  const langs = tryParse(selectedDoctor.languages, []);
+
+  switch(type) {
+    case 'business_name': return {
+      old: selectedDoctor.full_name,
+      new: document.getElementById('new_business_name')?.value?.trim(),
+      notes: document.getElementById('new_notes')?.value?.trim()
+    };
+    case 'phone': return {
+      old: selectedDoctor.clinic_phone || selectedDoctor.phone,
+      new: document.getElementById('new_phone')?.value?.trim()
+    };
+    case 'hours': return {
+      old: hours,
+      new: DAYS.map(d => ({ day: d, open: document.getElementById(`nh-ho-${d}`)?.value||'09:00', close: document.getElementById(`nh-hc-${d}`)?.value||'18:00', closed: document.getElementById(`nh-hx-${d}`)?.checked||false }))
+    };
+    case 'services': return {
+      old: services,
+      new: [...document.querySelectorAll('#newServicesChips .chip.on')].map(c => c.dataset.value)
+    };
+    case 'languages': return {
+      old: langs,
+      new: [...document.querySelectorAll('#newLangsChips .chip.on')].map(c => c.dataset.value)
+    };
+    case 'bio': return {
+      old: selectedDoctor.bio,
+      new: document.getElementById('new_bio')?.value?.trim()
+    };
+    case 'fee': return {
+      old: selectedDoctor.fee_range,
+      new: document.querySelector('input[name="new_fee"]:checked')?.value
+    };
+    case 'photos': return {
+      old: null,
+      new: document.getElementById('new_photos')?.value?.trim()
+    };
+    case 'other': return {
+      old: null,
+      new: document.getElementById('new_other')?.value?.trim()
+    };
+    default: return {};
+  }
+}
+
+// ── SUBMIT ──
+async function submitTicket() {
+  if (!selectedDoctor) { toast('Select a doctor first', 'error'); return; }
+  const type = document.getElementById('requestType').value;
+  if (!type) { toast('Select a request type', 'error'); return; }
+  const values = gatherNewValue(type);
+  if (!values.new || (Array.isArray(values.new) && !values.new.length)) {
+    toast('Please fill in the new value', 'error'); return;
+  }
+  const btn = document.getElementById('submitBtn');
+  document.getElementById('submitTxt').textContent = 'Submitting…';
+  document.getElementById('submitSpinner').style.display = 'block';
+  document.getElementById('submitIcon').style.display = 'none';
+  btn.disabled = true;
+  const typeLabels = {
+    business_name:'Update Business Name', phone:'Update Phone Number', hours:'Update Working Hours',
+    services:'Update Services', languages:'Update Languages', bio:'Update About / Bio',
+    fee:'Update Consultation Fee', photos:'Add / Update Photos', other:'Other'
+  };
+  try {
+    await sbPost('gmb_tickets', {
+      doctor_id: selectedDoctor.id,
+      doctor_name: selectedDoctor.full_name,
+      request_type: typeLabels[type] || type,
+      description: values.notes || (typeof values.new === 'string' ? values.new : `Update requested`),
+      old_value: JSON.stringify(values.old ?? null),
+      new_value: JSON.stringify(values.new),
+      status: 'open'
+    });
+    ['tk-card-1','typeCard','changeCard'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display='none'; });
+    document.querySelector('.tk-card').style.display = 'none';
+    document.getElementById('typeCard').style.display = 'none';
+    document.getElementById('changeCard').style.display = 'none';
+    document.getElementById('tkSuccess').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch(e) {
+    toast('Submission failed: ' + e.message.slice(0,80), 'error');
+    document.getElementById('submitTxt').textContent = 'Submit Request';
+    document.getElementById('submitSpinner').style.display = 'none';
+    document.getElementById('submitIcon').style.display = 'block';
+    btn.disabled = false;
+  }
+}
+
+function resetForm() {
+  location.reload();
+}
+
+loadDoctors();
+</script>
+</body>
+</html>
