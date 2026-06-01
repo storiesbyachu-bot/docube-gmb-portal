@@ -40,6 +40,18 @@
 .center-row input:checked ~ .center-row-check::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
 .center-row-label{font-size:14px;font-weight:500;color:var(--text)}
 .center-row input:checked ~ .center-row-check ~ .center-row-label{color:var(--navy);font-weight:600}
+
+/* Dual-slot hours */
+.hour-row{background:var(--cream);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:6px}
+.hour-row-main{display:grid;grid-template-columns:72px 1fr 12px 1fr 86px auto;align-items:center;gap:8px}
+@media(max-width:560px){.hour-row-main{grid-template-columns:1fr;gap:5px}}
+.hour-row.is-closed .hour-row-main input[type=time]{opacity:.3;pointer-events:none}
+.hour-row-slot2{display:none;grid-template-columns:72px 1fr 12px 1fr auto;align-items:center;gap:8px;margin-top:7px;padding-top:7px;border-top:1px dashed var(--border)}
+@media(max-width:560px){.hour-row-slot2{grid-template-columns:1fr;gap:5px}}
+.hour-row.has-slot2 .hour-row-slot2{display:grid}
+.slot2-label{font-size:11px;color:var(--text-muted);font-style:italic;white-space:nowrap}
+.add-slot-btn{font-size:11px;color:var(--teal-dark);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;padding:0;text-decoration:underline}
+.remove-slot-btn{font-size:11px;color:var(--error);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;line-height:1}
 .card-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy)}
 .card-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px}
 @media(max-width:560px){.card{padding:20px 16px}}
@@ -133,7 +145,7 @@
         </div>
         <span class="f-err" id="e_center">Select at least one center</span>
       </div>
-      <div class="f"><label class="lbl">Clinic Phone <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 80 1234 5678"><span class="f-err" id="e_cphone">Enter clinic phone</span></div>
+      <div class="f"><label class="lbl">Doctor's Mobile Number <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 98765 43210"><span class="f-err" id="e_cphone">Enter mobile number</span></div>
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
@@ -150,7 +162,11 @@
     </div>
     <div class="f" style="margin-bottom:20px">
       <label class="lbl">Consultation Hours <span class="req">*</span></label>
-      <p class="f-hint" style="margin-bottom:9px">Toggle "Closed" for days you don't consult</p>
+      <p class="f-hint" style="margin-bottom:9px">Set your hours per day. Add a second slot for split shifts (e.g. 10am–12pm and 4pm–9pm).</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <button type="button" class="btn btn-ghost" style="padding:6px 14px;font-size:12px" onclick="applyToAllDays()">Apply Mon–Sat to all</button>
+        <button type="button" class="btn btn-ghost" style="padding:6px 14px;font-size:12px" onclick="resetHours()">Reset</button>
+      </div>
       <div class="hours-wrap" id="hoursWrap"></div>
     </div>
     <div class="f" style="margin-bottom:20px">
@@ -451,15 +467,92 @@ function getServicesForSpec(spec) {
 
 // Build hours
 const hw = document.getElementById('hoursWrap');
-DAYS.forEach(d => {
-  const closed = d === 'Sunday';
+DAYS.forEach(d => buildHourRow(d, hw));
+
+function buildHourRow(d, container, opts = {}) {
+  const closed = opts.closed !== undefined ? opts.closed : d === 'Sunday';
+  const open1 = opts.open1 || '09:00';
+  const close1 = opts.close1 || '18:00';
+  const open2 = opts.open2 || '';
+  const close2 = opts.close2 || '';
+  const hasSlot2 = !!(open2 && close2);
   const row = document.createElement('div');
-  row.className = 'hour-row' + (closed ? ' is-closed' : '');
+  row.className = 'hour-row' + (closed ? ' is-closed' : '') + (hasSlot2 ? ' has-slot2' : '');
   row.id = 'hr-' + d;
-  row.innerHTML = `<div class="day-lbl">${d.slice(0,3)}</div><input type="time" id="ho-${d}" value="09:00" ${closed ? 'tabindex="-1"' : ''}><div class="hr-sep">–</div><input type="time" id="hc-${d}" value="18:00" ${closed ? 'tabindex="-1"' : ''}><div class="closed-w"><input type="checkbox" id="hx-${d}" ${closed ? 'checked' : ''} onchange="toggleDay('${d}')"><label class="closed-lbl" for="hx-${d}">Closed</label></div>`;
-  hw.appendChild(row);
-});
-function toggleDay(d) { const cb = document.getElementById('hx-' + d); document.getElementById('hr-' + d).classList.toggle('is-closed', cb.checked); }
+  row.innerHTML = `
+    <div class="hour-row-main">
+      <div class="day-lbl">${d.slice(0,3)}</div>
+      <input type="time" id="ho-${d}" value="${open1}" ${closed ? 'tabindex="-1"' : ''}>
+      <div class="hr-sep">–</div>
+      <input type="time" id="hc-${d}" value="${close1}" ${closed ? 'tabindex="-1"' : ''}>
+      <div class="closed-w">
+        <input type="checkbox" id="hx-${d}" ${closed ? 'checked' : ''} onchange="toggleDay('${d}')">
+        <label class="closed-lbl" for="hx-${d}">Closed</label>
+      </div>
+      <button type="button" class="add-slot-btn" id="addslot-${d}" onclick="toggleSlot2('${d}')" ${closed ? 'style="display:none"' : ''}>+ Evening</button>
+    </div>
+    <div class="hour-row-slot2" id="slot2-${d}">
+      <div class="slot2-label">Slot 2</div>
+      <input type="time" id="ho2-${d}" value="${open2 || '16:00'}">
+      <div class="hr-sep">–</div>
+      <input type="time" id="hc2-${d}" value="${close2 || '21:00'}">
+      <button type="button" class="remove-slot-btn" onclick="removeSlot2('${d}')" title="Remove">✕</button>
+    </div>`;
+  container.appendChild(row);
+}
+
+function toggleDay(d) {
+  const cb = document.getElementById('hx-' + d);
+  const row = document.getElementById('hr-' + d);
+  row.classList.toggle('is-closed', cb.checked);
+  const addBtn = document.getElementById('addslot-' + d);
+  if (addBtn) addBtn.style.display = cb.checked ? 'none' : '';
+}
+
+function toggleSlot2(d) {
+  const row = document.getElementById('hr-' + d);
+  const btn = document.getElementById('addslot-' + d);
+  row.classList.add('has-slot2');
+  btn.style.display = 'none';
+}
+
+function removeSlot2(d) {
+  const row = document.getElementById('hr-' + d);
+  const btn = document.getElementById('addslot-' + d);
+  row.classList.remove('has-slot2');
+  if (btn) btn.style.display = '';
+}
+
+function applyToAllDays() {
+  const refOpen1 = document.getElementById('ho-Monday')?.value || '09:00';
+  const refClose1 = document.getElementById('hc-Monday')?.value || '18:00';
+  const hasSlot2 = document.getElementById('hr-Monday')?.classList.contains('has-slot2');
+  const refOpen2 = document.getElementById('ho2-Monday')?.value || '16:00';
+  const refClose2 = document.getElementById('hc2-Monday')?.value || '21:00';
+  DAYS.forEach(d => {
+    if (d === 'Sunday') return;
+    const openEl = document.getElementById('ho-' + d);
+    const closeEl = document.getElementById('hc-' + d);
+    const cbEl = document.getElementById('hx-' + d);
+    if (openEl) openEl.value = refOpen1;
+    if (closeEl) closeEl.value = refClose1;
+    if (cbEl && cbEl.checked) { cbEl.checked = false; toggleDay(d); }
+    if (hasSlot2) {
+      toggleSlot2(d);
+      const o2 = document.getElementById('ho2-' + d);
+      const c2 = document.getElementById('hc2-' + d);
+      if (o2) o2.value = refOpen2;
+      if (c2) c2.value = refClose2;
+    } else {
+      removeSlot2(d);
+    }
+  });
+}
+
+function resetHours() {
+  document.getElementById('hoursWrap').innerHTML = '';
+  DAYS.forEach(d => buildHourRow(d, document.getElementById('hoursWrap')));
+}
 
 function buildChips(containerId, items) {
   const container = document.getElementById(containerId);
@@ -590,12 +683,19 @@ async function submitForm() {
   document.getElementById('submitIcon').style.display = 'none';
   btn.disabled = true;
 
-  const hours = DAYS.map(d => ({
-    day: d,
-    open: document.getElementById('ho-'+d).value,
-    close: document.getElementById('hc-'+d).value,
-    closed: document.getElementById('hx-'+d).checked
-  }));
+  const hours = DAYS.map(d => {
+    const slot2 = document.getElementById('hr-' + d)?.classList.contains('has-slot2');
+    return {
+      day: d,
+      open: document.getElementById('ho-'+d)?.value || '09:00',
+      close: document.getElementById('hc-'+d)?.value || '18:00',
+      closed: document.getElementById('hx-'+d)?.checked || false,
+      ...(slot2 && {
+        open2: document.getElementById('ho2-'+d)?.value || '16:00',
+        close2: document.getElementById('hc2-'+d)?.value || '21:00'
+      })
+    };
+  });
   const centers = [...document.querySelectorAll('input[name="docube_center"]:checked')].map(i => i.value);
   const services = getChecked('servChips');
   const languages = getChecked('langChips');
