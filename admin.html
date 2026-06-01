@@ -3,66 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Docube — Admin Panel</title>
+<title>Docube — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
 .admin-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px)}
 @media(max-width:700px){.admin-layout{grid-template-columns:1fr}}
 .admin-sidebar{background:var(--navy);padding:24px 0;border-right:1px solid rgba(255,255,255,.08)}
+@media(max-width:700px){.admin-sidebar{display:none}}
 .admin-sidebar-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:0 20px;margin-bottom:10px}
-.admin-nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .16s;border-left:3px solid transparent}
-.admin-nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
-.admin-nav-item.on{color:#fff;background:rgba(77,217,217,.1);border-left-color:var(--teal)}
-.admin-nav-item svg{width:16px;height:16px;flex-shrink:0}
-.admin-main{padding:28px 28px 60px;overflow-x:auto}
-@media(max-width:700px){.admin-sidebar{display:none}.admin-main{padding:20px 16px 60px}}
-.admin-page-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--navy);margin-bottom:4px}
-.admin-page-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
-.admin-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .16s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-item.on{color:#fff;background:rgba(77,217,217,.1);border-left-color:var(--teal)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0}
+.admin-main{padding:28px;overflow-x:auto}
+@media(max-width:700px){.admin-main{padding:18px 14px}}
+.admin-section{display:none}
+.admin-section.on{display:block}
+.page-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--navy);margin-bottom:3px}
+.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:24px}
+
+/* Stats */
+.stat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px}
 .stat-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm)}
 .stat-val{font-size:28px;font-weight:800;color:var(--navy);margin-bottom:3px}
-.stat-lbl{font-size:12px;color:var(--text-muted);font-weight:500}
+.stat-lbl{font-size:12px;color:var(--text-muted)}
 .stat-card.orange .stat-val{color:var(--orange)}
 .stat-card.teal .stat-val{color:var(--teal-dark)}
 .stat-card.green .stat-val{color:#1a9f7e}
-.admin-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.admin-filters select,.admin-filters input{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:13px;color:var(--text);background:#fff;outline:none;min-width:140px}
-.admin-filters select:focus,.admin-filters input:focus{border-color:var(--teal-dark)}
-.admin-table-wrap{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)}
-.admin-table{width:100%;border-collapse:collapse;min-width:600px}
-.admin-table th{background:var(--cream);padding:11px 16px;font-size:11.5px;font-weight:700;color:var(--text-mid);text-align:left;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border-light)}
-.admin-table td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border-light);vertical-align:middle}
-.admin-table tr:last-child td{border-bottom:none}
-.admin-table tr:hover td{background:var(--cream)}
-.admin-action-btn{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:none;transition:all .15s;margin-right:4px}
-.ab-teal{background:var(--teal-pale);color:var(--teal-dark);border:1px solid var(--border)}
-.ab-teal:hover{background:var(--teal-dark);color:#fff}
-.ab-orange{background:var(--orange-pale);color:var(--orange-dark);border:1px solid rgba(245,166,35,.25)}
-.ab-orange:hover{background:var(--orange);color:#fff}
-.ab-red{background:#fff1f1;color:#c43e3e;border:1px solid rgba(224,82,82,.2)}
-.ab-red:hover{background:#e05252;color:#fff}
-.ab-green{background:rgba(34,201,160,.1);color:#1a9f7e;border:1px solid rgba(34,201,160,.25)}
-.ab-green:hover{background:var(--success);color:#fff}
-.admin-section{display:none}
-.admin-section.on{display:block}
+
+/* Table */
+.table-wrap{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm)}
+.tbl{width:100%;border-collapse:collapse;min-width:500px}
+.tbl th{background:var(--cream);padding:10px 16px;font-size:11px;font-weight:700;color:var(--text-mid);text-align:left;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--border-light)}
+.tbl td{padding:12px 16px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border-light);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--cream)}
+.aab{padding:5px 12px;border-radius:6px;font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;border:none;transition:all .14s;margin-right:4px}
+.aab-teal{background:var(--teal-pale);color:var(--teal-dark);border:1px solid var(--border)}
+.aab-teal:hover{background:var(--teal-dark);color:#fff}
+.aab-orange{background:var(--orange-pale);color:var(--orange-dark);border:1px solid rgba(245,166,35,.25)}
+.aab-orange:hover{background:var(--orange);color:#fff}
+.aab-green{background:rgba(34,201,160,.1);color:#1a9f7e;border:1px solid rgba(34,201,160,.25)}
+.aab-green:hover{background:#22c9a0;color:#fff}
+.aab-red{background:#fff1f1;color:#c43e3e;border:1px solid rgba(224,82,82,.2)}
+.aab-red:hover{background:#e05252;color:#fff}
+
+/* Filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.filters select{padding:7px 11px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:12.5px;color:var(--text);background:#fff;outline:none}
+.filters select:focus{border-color:var(--teal-dark)}
+
+/* GMB Pipeline */
+.pipeline-wrap{background:#fff;border:1px solid var(--border-light);border-radius:var(--r);padding:22px 24px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+.pipeline-doc-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.pipeline-doc-sub{font-size:12px;color:var(--text-muted);margin-bottom:14px}
+.pipeline{display:flex;position:relative}
+.pipeline::before{content:'';position:absolute;top:16px;left:16px;right:16px;height:2px;background:var(--border-light);z-index:0}
+.pipeline-stage{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.pipeline-dot{width:32px;height:32px;border-radius:50%;border:2.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:7px;transition:all .2s}
+.pipeline-dot svg{width:14px;height:14px;color:var(--text-muted)}
+.pipeline-stage.done .pipeline-dot{background:var(--teal-dark);border-color:var(--teal-dark)}
+.pipeline-stage.done .pipeline-dot svg{color:#fff}
+.pipeline-stage.active .pipeline-dot{background:var(--orange);border-color:var(--orange);box-shadow:0 0 0 4px rgba(245,166,35,.2)}
+.pipeline-stage.active .pipeline-dot svg{color:#fff}
+.pipeline-label{font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:center;max-width:64px;line-height:1.3}
+.pipeline-stage.done .pipeline-label,.pipeline-stage.active .pipeline-label{color:var(--navy)}
+.pipeline-line{position:absolute;top:16px;left:16px;height:2px;background:var(--teal-dark);z-index:0;transition:width .5s}
+
+/* URL cell */
+.url-cell a{font-size:12px;color:var(--teal-dark);text-decoration:none;word-break:break-all}
+.url-cell a:hover{text-decoration:underline}
+.url-missing{font-size:12px;color:var(--text-muted);font-style:italic}
+
+/* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(11,31,53,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:var(--r);padding:28px;max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative}
-.modal-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);margin-bottom:6px}
+.modal-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy);margin-bottom:4px}
 .modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--cream);border:1px solid var(--border);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text-muted);font-family:inherit}
-.url-cell{max-width:200px}
-.url-cell a{font-size:12px;color:var(--teal-dark);text-decoration:none;word-break:break-all;display:block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.url-cell a:hover{text-decoration:underline}
-.url-missing{font-size:12px;color:var(--text-muted);font-style:italic}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.badge-pending{background:rgba(245,166,35,.15);color:var(--orange-dark);border:1px solid rgba(245,166,35,.3)}
+.badge-live{background:rgba(34,201,160,.15);color:#1a9f7e;border:1px solid rgba(34,201,160,.3)}
+.badge-open{background:rgba(245,166,35,.12);color:var(--orange-dark);border:1px solid rgba(245,166,35,.25)}
+.badge-resolved{background:rgba(34,201,160,.12);color:#1a9f7e;border:1px solid rgba(34,201,160,.25)}
 </style>
 </head>
 <body>
 
 <div class="toast" id="toast">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="toastMsg">Done</span>
+  <span id="toastMsg"></span>
+</div>
+
+<!-- URL Modal -->
+<div class="modal-overlay" id="urlModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeUrlModal()">✕</button>
+    <div class="modal-title">Set Docube Profile URL</div>
+    <div class="modal-sub" id="urlModalSub"></div>
+    <div style="margin-bottom:18px">
+      <label style="font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Docube Profile URL</label>
+      <input type="text" id="urlInput" placeholder="https://www.docube.in/doctor/dr-name" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;outline:none">
+      <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px">e.g. https://www.docube.in/doctor/dr-apurva-mittal</p>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="aab aab-teal" onclick="closeUrlModal()">Cancel</button>
+      <button class="aab aab-green" onclick="saveDocubeUrl()">Save URL</button>
+    </div>
+  </div>
 </div>
 
 <nav class="topnav">
@@ -78,274 +130,246 @@
     <span class="nav-logo-text"><b>DOC</b>UBE</span>
   </a>
   <div class="nav-spacer"></div>
-  <a class="nav-btn nav-btn-ghost" href="index.html">Our Doctors</a>
-  <a class="nav-btn nav-btn-admin" href="admin.html">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-    Admin
-  </a>
-  <a class="nav-btn nav-btn-orange" href="onboard.html">GMB Onboarding</a>
+  <a class="nav-btn nav-btn-orange" href="index.html">GMB Onboarding</a>
 </nav>
 
-<div class="admin-layout fadein">
+<div class="admin-layout">
   <div class="admin-sidebar">
     <div class="admin-sidebar-title">Admin Panel</div>
-    <div class="admin-nav-item on" onclick="adminTab('dashboard')" id="atab-dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    <div class="nav-item on" onclick="switchTab('dashboard')" id="nav-dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
     </div>
-    <div class="admin-nav-item" onclick="adminTab('bookings')" id="atab-bookings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Bookings
+    <div class="nav-item" onclick="switchTab('gmb')" id="nav-gmb">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      GMB Status
     </div>
-    <div class="admin-nav-item" onclick="adminTab('doctors')" id="atab-doctors">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Doctors & GMB
+    <div class="nav-item" onclick="switchTab('tickets')" id="nav-tickets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      GMB Tickets
     </div>
   </div>
 
   <div class="admin-main">
-    <!-- Dashboard -->
-    <div class="admin-section on" id="asec-dashboard">
-      <div class="admin-page-title">Dashboard</div>
-      <div class="admin-page-sub">Overview of bookings and doctor onboarding</div>
-      <div class="admin-stat-grid">
-        <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Total Bookings</div></div>
-        <div class="stat-card orange"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">Pending Bookings</div></div>
-        <div class="stat-card teal"><div class="stat-val" id="stat-confirmed">—</div><div class="stat-lbl">Confirmed</div></div>
-        <div class="stat-card"><div class="stat-val" id="stat-doctors">—</div><div class="stat-lbl">Doctors Onboarded</div></div>
-        <div class="stat-card orange"><div class="stat-val" id="stat-gmb-pending">—</div><div class="stat-lbl">GMB Pending</div></div>
-        <div class="stat-card green"><div class="stat-val" id="stat-gmb-live">—</div><div class="stat-lbl">GMB Live</div></div>
-      </div>
-      <div style="font-size:13px;font-weight:700;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Recent Bookings</div>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>Patient</th><th>Doctor</th><th>Date & Time</th><th>Center</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody id="recentBookingsTbl"><tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
+
+    <!-- DASHBOARD -->
+    <div class="admin-section on" id="sec-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">GMB onboarding overview</div>
+      <div class="stat-row" id="statRow"></div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-mid);letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px">Recent Submissions</div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Submitted</th><th>GMB Status</th></tr></thead>
+          <tbody id="recentTbl"><tr><td colspan="5" style="text-align:center;padding:28px;color:var(--text-muted)">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Bookings -->
-    <div class="admin-section" id="asec-bookings">
-      <div class="admin-page-title">All Bookings</div>
-      <div class="admin-page-sub">Manage and update booking statuses</div>
-      <div class="admin-filters">
-        <select id="bk-filter-status" onchange="loadAdminBookings()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option></select>
-        <select id="bk-filter-doctor" onchange="loadAdminBookings()"><option value="">All Doctors</option></select>
-        <input type="date" id="bk-filter-date" onchange="loadAdminBookings()">
+    <!-- GMB STATUS -->
+    <div class="admin-section" id="sec-gmb">
+      <div class="page-title">GMB Status</div>
+      <div class="page-sub">Track and update Google Business Profile setup progress per doctor</div>
+      <div class="filters">
+        <select id="gmb-filter" onchange="loadGmbStatus()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="under_review">Under Review</option>
+          <option value="optimised">Optimised</option>
+          <option value="live">Live</option>
+        </select>
+        <select id="gmb-center-filter" onchange="loadGmbStatus()">
+          <option value="">All Centers</option>
+        </select>
       </div>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>Patient</th><th>Phone</th><th>Doctor</th><th>Date</th><th>Time</th><th>Center</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody id="allBookingsTbl"><tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
+      <div id="gmbList"><div style="text-align:center;padding:40px;color:var(--text-muted)">Loading…</div></div>
+    </div>
+
+    <!-- TICKETS -->
+    <div class="admin-section" id="sec-tickets">
+      <div class="page-title">GMB Tickets</div>
+      <div class="page-sub">Change requests raised by doctors for their Google Business Profile</div>
+      <div class="filters">
+        <select id="tk-filter" onchange="loadTickets()">
+          <option value="">All</option>
+          <option value="open">Open</option>
+          <option value="resolved">Resolved</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>Doctor</th><th>Request Type</th><th>Description</th><th>Raised On</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="ticketsTbl"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
 
-    <!-- Doctors -->
-    <div class="admin-section" id="asec-doctors">
-      <div class="admin-page-title">Doctors & GMB Status</div>
-      <div class="admin-page-sub">Track GMB setup progress and manage doctor profiles</div>
-      <div class="admin-filters">
-        <select id="doc-filter-gmb" onchange="loadAdminDoctors()"><option value="">All GMB Statuses</option><option value="pending">Pending</option><option value="live">Live</option></select>
-        <select id="doc-filter-center" onchange="loadAdminDoctors()"><option value="">All Centers</option></select>
-      </div>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>Doctor</th><th>Speciality</th><th>Center</th><th>Phone</th><th>GMB Status</th><th>Docube Profile URL</th><th>Actions</th></tr></thead>
-          <tbody id="allDoctorsTbl"><tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Docube Profile URL Modal -->
-<div class="modal-overlay" id="urlModal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeUrlModal()">✕</button>
-    <div class="modal-title">Set Docube Profile URL</div>
-    <div class="modal-sub" id="urlModalSub">Add the doctor's existing Docube.in profile link</div>
-    <div style="margin-bottom:18px">
-      <label style="font-size:12px;font-weight:600;color:var(--text-mid);display:block;margin-bottom:6px">Docube Profile URL</label>
-      <input type="text" id="urlInput" placeholder="https://www.docube.in/doctor/dr-name" style="width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;outline:none">
-      <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px">Example: https://www.docube.in/doctor/dr-apurva-mittal</p>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button style="padding:9px 20px;border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--text-muted)" onclick="closeUrlModal()">Cancel</button>
-      <button style="padding:9px 20px;border-radius:var(--r-sm);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;border:none;background:var(--teal-dark);color:#fff" onclick="saveDocubeUrl()">Save URL</button>
-    </div>
   </div>
 </div>
 
 <script src="shared.js"></script>
 <script>
-function adminTab(tab) {
+const SB_URL = 'https://sptapddgvamgeqlykvdu.supabase.co';
+const SB_KEY = 'sb_publishable_1AtpPE78KZ-H3WxO5_QdcA_hWIQLpDz';
+
+function switchTab(tab) {
   document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('on'));
-  document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('on'));
-  document.getElementById('asec-' + tab).classList.add('on');
-  document.getElementById('atab-' + tab).classList.add('on');
-  if (tab === 'bookings') loadAdminBookings();
-  if (tab === 'doctors') loadAdminDoctors();
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+  document.getElementById('sec-' + tab).classList.add('on');
+  document.getElementById('nav-' + tab).classList.add('on');
+  if (tab === 'gmb') loadGmbStatus();
+  if (tab === 'tickets') loadTickets();
 }
 
+// ── DASHBOARD ──
 async function loadDashboard() {
   try {
-    const [bookings, doctors] = await Promise.all([
-      sbGet('bookings', 'select=status'),
-      sbGet('doctor_profiles', 'select=gmb_status')
-    ]);
-    document.getElementById('stat-total').textContent = bookings.length;
-    document.getElementById('stat-pending').textContent = bookings.filter(b => b.status === 'pending').length;
-    document.getElementById('stat-confirmed').textContent = bookings.filter(b => b.status === 'confirmed').length;
-    document.getElementById('stat-doctors').textContent = doctors.length;
-    document.getElementById('stat-gmb-pending').textContent = doctors.filter(d => d.gmb_status === 'pending').length;
-    document.getElementById('stat-gmb-live').textContent = doctors.filter(d => d.gmb_status === 'live').length;
-    const recent = await sbGet('bookings', 'select=*&order=created_at.desc&limit=8');
-    document.getElementById('recentBookingsTbl').innerHTML = recent.map(b => `
-      <tr>
-        <td><strong>${b.patient_name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${b.patient_phone}</span></td>
-        <td>${b.doctor_name}</td>
-        <td>${b.preferred_date}<br><span style="font-size:11px;color:var(--text-muted)">${formatTime(b.preferred_time)}</span></td>
-        <td style="font-size:12px">${(b.docube_center || '').replace('Docube Healthcare – ','')}</td>
-        <td><span class="badge badge-${b.status}">${b.status}</span></td>
-        <td>
-          ${b.status === 'pending' ? `<button class="admin-action-btn ab-green" onclick="updateBookingStatus('${b.id}','confirmed')">Confirm</button>` : ''}
-          ${b.status !== 'cancelled' ? `<button class="admin-action-btn ab-red" onclick="updateBookingStatus('${b.id}','cancelled')">Cancel</button>` : ''}
-        </td>
-      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted)">No bookings yet</td></tr>';
-  } catch(e) {}
-}
+    const docs = await sbGet('doctor_profiles', 'select=id,gmb_status,full_name,speciality,docube_center,created_at&order=created_at.desc');
+    const total = docs.length;
+    const pending = docs.filter(d => !d.gmb_status || d.gmb_status === 'pending').length;
+    const live = docs.filter(d => d.gmb_status === 'live').length;
+    const openTkts = await sbGet('gmb_tickets', 'select=id&status=eq.open').catch(() => []);
 
-async function loadAdminBookings() {
-  const statusFilter = document.getElementById('bk-filter-status')?.value || '';
-  const doctorFilter = document.getElementById('bk-filter-doctor')?.value || '';
-  const dateFilter   = document.getElementById('bk-filter-date')?.value || '';
-  let params = 'select=*&order=created_at.desc';
-  if (statusFilter) params += `&status=eq.${statusFilter}`;
-  if (doctorFilter) params += `&doctor_id=eq.${doctorFilter}`;
-  if (dateFilter)   params += `&preferred_date=eq.${dateFilter}`;
-  try {
-    const [bookings, docs] = await Promise.all([
-      sbGet('bookings', params),
-      sbGet('doctor_profiles', 'select=id,full_name&order=full_name.asc')
-    ]);
-    const sel = document.getElementById('bk-filter-doctor');
-    const curVal = sel.value;
-    sel.innerHTML = '<option value="">All Doctors</option>' + docs.map(d => `<option value="${d.id}" ${curVal === d.id ? 'selected' : ''}>${d.full_name}</option>`).join('');
-    document.getElementById('allBookingsTbl').innerHTML = bookings.map(b => `
-      <tr>
-        <td><strong>${b.patient_name}</strong></td>
-        <td>${b.patient_phone}</td>
-        <td>${b.doctor_name}</td>
-        <td>${b.preferred_date}</td>
-        <td>${formatTime(b.preferred_time)}</td>
-        <td style="font-size:12px">${(b.docube_center || '').replace('Docube Healthcare – ','')}</td>
-        <td><span class="badge badge-${b.status}">${b.status}</span></td>
-        <td>
-          ${b.status === 'pending' ? `<button class="admin-action-btn ab-green" onclick="updateBookingStatus('${b.id}','confirmed')">✓ Confirm</button>` : ''}
-          ${b.status === 'confirmed' ? `<button class="admin-action-btn ab-teal" onclick="updateBookingStatus('${b.id}','pending')">Reopen</button>` : ''}
-          ${b.status !== 'cancelled' ? `<button class="admin-action-btn ab-red" onclick="updateBookingStatus('${b.id}','cancelled')">✕ Cancel</button>` : ''}
-        </td>
-      </tr>`).join('') || '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted)">No bookings found</td></tr>';
-  } catch(e) {}
-}
+    document.getElementById('statRow').innerHTML = `
+      <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total Doctors</div></div>
+      <div class="stat-card orange"><div class="stat-val">${pending}</div><div class="stat-lbl">GMB Pending</div></div>
+      <div class="stat-card green"><div class="stat-val">${live}</div><div class="stat-lbl">GMB Live</div></div>
+      <div class="stat-card teal"><div class="stat-val">${openTkts.length}</div><div class="stat-lbl">Open Tickets</div></div>`;
 
-async function loadAdminDoctors() {
-  const gmbFilter    = document.getElementById('doc-filter-gmb')?.value || '';
-  const centerFilter = document.getElementById('doc-filter-center')?.value || '';
-  let params = 'select=*&order=created_at.desc';
-  if (gmbFilter)    params += `&gmb_status=eq.${gmbFilter}`;
-  if (centerFilter) params += `&docube_center=eq.${encodeURIComponent(centerFilter)}`;
-  try {
-    const [doctors, allDocs] = await Promise.all([
-      sbGet('doctor_profiles', params),
-      sbGet('doctor_profiles', 'select=docube_center')
-    ]);
-    const centers = [...new Set(allDocs.map(d => d.docube_center).filter(Boolean))];
-    const sel = document.getElementById('doc-filter-center');
-    const curVal = sel.value;
-    sel.innerHTML = '<option value="">All Centers</option>' + centers.map(c => `<option value="${c}" ${curVal === c ? 'selected' : ''}>${c.replace('Docube Healthcare – ','')}</option>`).join('');
-    const profileBase = location.origin + location.pathname.replace('admin.html','') + 'profile.html';
-    document.getElementById('allDoctorsTbl').innerHTML = doctors.map(d => `
+    document.getElementById('recentTbl').innerHTML = docs.slice(0, 10).map(d => `
       <tr>
-        <td><strong>${d.full_name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${d.email || ''}</span></td>
-        <td>${d.speciality}</td>
+        <td><strong>${d.full_name}</strong></td>
+        <td>${d.speciality || '—'}</td>
         <td style="font-size:12px">${(d.docube_center || '').replace('Docube Healthcare – ','')}</td>
-        <td style="font-size:12px">${d.phone || d.clinic_phone || '—'}</td>
+        <td style="font-size:12px">${new Date(d.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
         <td><span class="badge badge-${d.gmb_status || 'pending'}">${d.gmb_status || 'pending'}</span></td>
-        <td class="url-cell">
-          ${d.docube_profile_url
-            ? `<a href="${d.docube_profile_url}" target="_blank" title="${d.docube_profile_url}">${d.docube_profile_url.replace('https://www.docube.in','docube.in')}</a>`
-            : `<span class="url-missing">Not set</span>`}
-          <button class="admin-action-btn ab-teal" style="margin-top:5px;display:block" onclick="openUrlModal('${d.id}','${d.full_name}','${(d.docube_profile_url||'').replace(/'/g,"\\'")}')">
-            ${d.docube_profile_url ? 'Edit URL' : '+ Set URL'}
-          </button>
-        </td>
-        <td>
-          ${d.gmb_status !== 'live' ? `<button class="admin-action-btn ab-green" onclick="updateGmbStatus('${d.id}','live')">Set Live</button>` : ''}
-          ${d.gmb_status === 'live' ? `<button class="admin-action-btn ab-orange" onclick="updateGmbStatus('${d.id}','pending')">Set Pending</button>` : ''}
-          <button class="admin-action-btn ab-red" onclick="deleteDoctor('${d.id}')">Delete</button>
-        </td>
-      </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--text-muted)">No doctors found</td></tr>';
+      </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text-muted)">No submissions yet</td></tr>';
   } catch(e) { console.error(e); }
 }
 
-async function updateBookingStatus(id, status) {
+// ── GMB STATUS ──
+const STAGE_MAP = { pending: 0, under_review: 1, optimised: 2, live: 3 };
+const STAGE_LABELS = ['Submitted', 'Under Review', 'Optimised', 'Live'];
+const STAGE_ICONS = [
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+];
+
+async function loadGmbStatus() {
+  const filter = document.getElementById('gmb-filter').value;
+  const centerFilter = document.getElementById('gmb-center-filter').value;
+  let params = 'select=*&order=created_at.desc';
+  if (filter) params += `&gmb_status=eq.${filter}`;
+  if (centerFilter) params += `&docube_center=eq.${encodeURIComponent(centerFilter)}`;
+  const list = document.getElementById('gmbList');
   try {
-    await sbPatch('bookings', `id=eq.${id}`, { status });
-    toast(`Booking ${status}!`);
-    await loadDashboard();
-    await loadAdminBookings();
-  } catch(e) { toast('Update failed', 'error'); }
+    const docs = await sbGet('doctor_profiles', params);
+    // Build center filter
+    const allDocs = await sbGet('doctor_profiles', 'select=docube_center');
+    const centers = [...new Set(allDocs.map(d => d.docube_center).filter(Boolean))];
+    const sel = document.getElementById('gmb-center-filter');
+    const cv = sel.value;
+    sel.innerHTML = '<option value="">All Centers</option>' + centers.map(c => `<option value="${c}" ${cv===c?'selected':''}>${c.replace('Docube Healthcare – ','')}</option>`).join('');
+    if (!docs.length) { list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted)">No doctors found.</div>'; return; }
+    list.innerHTML = docs.map(d => {
+      const stage = STAGE_MAP[d.gmb_status] ?? 0;
+      const pct = (stage / 3) * 100;
+      const stagesHTML = STAGE_LABELS.map((lbl, i) => `
+        <div class="pipeline-stage ${i < stage ? 'done' : i === stage ? 'active' : ''}">
+          <div class="pipeline-dot">${STAGE_ICONS[i]}</div>
+          <div class="pipeline-label">${lbl}</div>
+        </div>`).join('');
+      return `<div class="pipeline-wrap">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px">
+          <div>
+            <div class="pipeline-doc-name">${d.full_name}</div>
+            <div class="pipeline-doc-sub">${d.speciality} · ${(d.docube_center||'').replace('Docube Healthcare – ','')} · ${d.email||d.phone||''}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            ${d.docube_profile_url ? `<a href="${d.docube_profile_url}" target="_blank" class="aab aab-teal">View on Docube</a>` : ''}
+            <button class="aab aab-teal" onclick="openUrlModal('${d.id}','${d.full_name.replace(/'/g,"\\'")}','${(d.docube_profile_url||'').replace(/'/g,"\\'")}')">
+              ${d.docube_profile_url ? 'Edit URL' : '+ Set URL'}
+            </button>
+            <select onchange="updateGmbStatus('${d.id}',this.value)" style="padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer">
+              <option value="pending" ${(d.gmb_status||'pending')==='pending'?'selected':''}>Pending</option>
+              <option value="under_review" ${d.gmb_status==='under_review'?'selected':''}>Under Review</option>
+              <option value="optimised" ${d.gmb_status==='optimised'?'selected':''}>Optimised</option>
+              <option value="live" ${d.gmb_status==='live'?'selected':''}>Live</option>
+            </select>
+          </div>
+        </div>
+        <div class="pipeline" style="position:relative">
+          <div style="position:absolute;top:16px;left:16px;right:16px;height:2px;background:var(--border-light);z-index:0"></div>
+          <div style="position:absolute;top:16px;left:16px;height:2px;background:var(--teal-dark);z-index:0;width:calc(${pct}% - 32px);transition:width .5s"></div>
+          ${stagesHTML}
+        </div>
+        ${d.gmb_existing_link ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);font-size:12.5px;color:var(--text-mid)">Existing GMB: <a href="${d.gmb_existing_link}" target="_blank" style="color:var(--teal-dark)">${d.gmb_existing_link}</a> · Access: <strong>${d.gmb_access_confirmed||'—'}</strong></div>` : ''}
+      </div>`;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error)">Could not load.</div>'; console.error(e); }
 }
 
 async function updateGmbStatus(id, status) {
   try {
     await sbPatch('doctor_profiles', `id=eq.${id}`, { gmb_status: status });
-    toast(`GMB status set to ${status}!`);
-    await loadAdminDoctors(); await loadDashboard();
+    toast(`GMB status updated to ${status}!`);
+    loadDashboard();
   } catch(e) { toast('Update failed', 'error'); }
 }
 
-async function deleteDoctor(id) {
-  if (!confirm('Delete this doctor profile? This cannot be undone.')) return;
-  try {
-    await sbDel('doctor_profiles', `id=eq.${id}`);
-    toast('Doctor deleted.');
-    await loadAdminDoctors(); await loadDashboard();
-  } catch(e) { toast('Delete failed', 'error'); }
-}
-
-function copyLink(url) {
-  navigator.clipboard.writeText(url).then(() => toast('Profile link copied!')).catch(() => { prompt('Copy this link:', url); });
-}
-
-let urlModalDoctorId = null;
+// ── URL MODAL ──
+let urlModalId = null;
 function openUrlModal(id, name, currentUrl) {
-  urlModalDoctorId = id;
-  document.getElementById('urlModalSub').textContent = `Doctor: ${name}`;
+  urlModalId = id;
+  document.getElementById('urlModalSub').textContent = name;
   document.getElementById('urlInput').value = currentUrl || '';
-  document.getElementById('urlInput').focus();
   document.getElementById('urlModal').classList.add('show');
+  setTimeout(() => document.getElementById('urlInput').focus(), 100);
 }
-function closeUrlModal() {
-  document.getElementById('urlModal').classList.remove('show');
-  urlModalDoctorId = null;
-}
+function closeUrlModal() { document.getElementById('urlModal').classList.remove('show'); urlModalId = null; }
 async function saveDocubeUrl() {
   const url = document.getElementById('urlInput').value.trim();
-  if (!urlModalDoctorId) return;
+  if (!urlModalId) return;
   try {
-    await sbPatch('doctor_profiles', `id=eq.${urlModalDoctorId}`, { docube_profile_url: url || null });
-    toast('Profile URL saved!');
+    await sbPatch('doctor_profiles', `id=eq.${urlModalId}`, { docube_profile_url: url || null });
+    toast('URL saved!');
     closeUrlModal();
-    loadAdminDoctors();
-  } catch(e) { toast('Save failed. Try again.', 'error'); }
+    loadGmbStatus();
+  } catch(e) { toast('Save failed', 'error'); }
 }
-// Close modal on overlay click
 document.getElementById('urlModal').addEventListener('click', e => { if (e.target === document.getElementById('urlModal')) closeUrlModal(); });
-// Enter key in URL input
 document.getElementById('urlInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveDocubeUrl(); });
 
-// Init
+// ── TICKETS ──
+async function loadTickets() {
+  const filter = document.getElementById('tk-filter').value;
+  let params = 'select=*&order=created_at.desc';
+  if (filter) params += `&status=eq.${filter}`;
+  try {
+    const tickets = await sbGet('gmb_tickets', params);
+    document.getElementById('ticketsTbl').innerHTML = tickets.map(t => `
+      <tr>
+        <td><strong>${t.doctor_name}</strong></td>
+        <td>${t.request_type}</td>
+        <td style="max-width:220px;font-size:12.5px;color:var(--text-mid)">${t.description}</td>
+        <td style="font-size:12px">${new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><span class="badge badge-${t.status}">${t.status}</span></td>
+        <td>${t.status === 'open' ? `<button class="aab aab-green" onclick="resolveTicket('${t.id}')">Resolve</button>` : '—'}</td>
+      </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">No tickets yet</td></tr>';
+  } catch(e) { console.error(e); }
+}
+
+async function resolveTicket(id) {
+  try {
+    await sbPatch('gmb_tickets', `id=eq.${id}`, { status: 'resolved' });
+    toast('Ticket resolved!');
+    loadTickets();
+    loadDashboard();
+  } catch(e) { toast('Failed', 'error'); }
+}
+
 loadDashboard();
 </script>
 </body>
