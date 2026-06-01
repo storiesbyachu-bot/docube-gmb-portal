@@ -175,15 +175,19 @@ let doc = null, selectedDate = null, selectedTime = null, calYear, calMonth;
 async function init() {
   const params = new URLSearchParams(location.search);
   const id = params.get('doctor');
+  const selectedCenter = decodeURIComponent(params.get('center') || '');
   if (!id) { location.href = 'index.html'; return; }
   try {
     const docs = await sbGet('doctor_profiles', `select=*&id=eq.${id}`);
     if (!docs.length) { location.href = 'index.html'; return; }
     doc = docs[0];
+    // Use selected center or fall back to first
+    const centers = doc.docube_centers?.length ? doc.docube_centers : [doc.docube_center].filter(Boolean);
+    doc._selectedCenter = selectedCenter || centers[0] || '';
     document.title = `Book — ${doc.full_name}`;
     document.getElementById('bkAvatar').textContent = initials(doc.full_name);
     document.getElementById('bkDocName').textContent = doc.full_name;
-    document.getElementById('bkDocSpec').textContent = `${doc.speciality} · ${(doc.docube_center || '').replace('Docube Healthcare – ', 'Docube ')}`;
+    document.getElementById('bkDocSpec').textContent = `${doc.speciality} · ${doc._selectedCenter.replace('Docube Healthcare – ', 'Docube ')}`;
     const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth();
     buildCalendar();
   } catch(e) {
@@ -274,7 +278,8 @@ function selectTime(time, btn) {
     <div class="bk-sum-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>${doc.full_name}</span></div>
     <div class="bk-sum-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>${d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</span></div>
     <div class="bk-sum-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>${formatTime(selectedTime)}</span></div>
-    ${doc.fee_range ? `<div class="bk-sum-item"><span class="fee-note">${doc.fee_range}</span></div>` : ''}`;
+    ${doc.fee_range ? `<div class="bk-sum-item"><span class="fee-note">${doc.fee_range}</span></div>` : ''}
+    <div class="bk-sum-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>${doc._selectedCenter.replace('Docube Healthcare – ','')}</span></div>`;
   document.getElementById('patientCard').style.display = 'block';
   document.getElementById('patientCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -319,7 +324,7 @@ async function submitBooking() {
     const data = {
       doctor_id: doc.id,
       doctor_name: doc.full_name,
-      docube_center: doc.docube_center,
+      docube_center: doc._selectedCenter || doc.docube_center,
       patient_name: document.getElementById('bk_name').value.trim(),
       patient_phone: document.getElementById('bk_phone').value.trim(),
       patient_email: document.getElementById('bk_email').value.trim(),
@@ -332,7 +337,7 @@ async function submitBooking() {
     };
     await sbPost('bookings', data);
     const d = new Date(selectedDate + 'T00:00:00');
-    document.getElementById('bkSuccessMsg').innerHTML = `Your consultation with <strong>${doc.full_name}</strong> on <strong>${d.toLocaleDateString('en-IN', { day:'numeric', month:'long' })} at ${formatTime(selectedTime)}</strong> is confirmed. See you at ${(doc.docube_center || 'Docube').replace('Docube Healthcare – ', 'Docube ')}!`;
+    document.getElementById('bkSuccessMsg').innerHTML = `Your consultation with <strong>${doc.full_name}</strong> on <strong>${d.toLocaleDateString('en-IN', { day:'numeric', month:'long' })} at ${formatTime(selectedTime)}</strong> is confirmed. See you at <strong>${doc._selectedCenter.replace('Docube Healthcare – ','Docube ')}</strong>!`;
     document.getElementById('bkSuccess').classList.add('show');
     document.getElementById('bkSuccess').scrollIntoView({ behavior: 'smooth' });
     document.getElementById('slotCard').style.display = 'none';
