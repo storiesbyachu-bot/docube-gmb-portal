@@ -89,7 +89,8 @@
     <div class="fg">
       <div class="f"><label class="lbl">Full Name <span class="req">*</span></label><input type="text" id="f_name" placeholder="Dr. Priya Sharma"><span class="f-err" id="e_name">Enter your full name</span></div>
       <div class="f"><label class="lbl">Speciality <span class="req">*</span></label>
-        <select id="f_spec"><option value="">Select…</option><option>General Physician / Family Medicine</option><option>Obstetrics & Gynaecology</option><option>Dermatology & Cosmetology</option><option>Orthopaedics</option><option>Neurology</option><option>Cardiology</option><option>ENT Specialist</option><option>Psychiatry & Mental Health</option><option>Respiratory Medicine</option><option>Gastroenterology</option><option>Paediatrics</option><option>Dentistry</option><option>Physiotherapy</option><option>Oncology</option><option>Radiology</option><option>Other</option></select>
+        <select id="f_spec" onchange="toggleOther('f_spec','f_spec_other')"><option value="">Select…</option><option>General Physician / Family Medicine</option><option>Obstetrics & Gynaecology</option><option>Dermatology & Cosmetology</option><option>Orthopaedics</option><option>Neurology</option><option>Cardiology</option><option>ENT Specialist</option><option>Psychiatry & Mental Health</option><option>Respiratory Medicine</option><option>Gastroenterology</option><option>Paediatrics</option><option>Dentistry</option><option>Physiotherapy</option><option>Oncology</option><option>Radiology</option><option>Other</option></select>
+        <input type="text" id="f_spec_other" placeholder="Please specify your speciality" style="display:none;margin-top:8px">
         <span class="f-err" id="e_spec">Select speciality</span>
       </div>
       <div class="f"><label class="lbl">Qualifications <span class="req">*</span></label><input type="text" id="f_quals" placeholder="MBBS, MD – Internal Medicine"><span class="f-err" id="e_quals">Enter qualifications</span></div>
@@ -110,20 +111,13 @@
       <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
       <div><div class="card-title">Practice Details</div><div class="card-sub">Where patients can find you</div></div>
     </div>
-    <div class="ibox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Enter the Docube center where you consult — the team will use this for your GMB location.</p></div>
+    <div class="ibox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>Select the Docube center where you consult — the team will use this for your GMB location.</p></div>
     <div class="fg one">
-      <div class="f"><label class="lbl">Clinic / Practice Name <span class="req">*</span></label><input type="text" id="f_clinic" placeholder="Docube Healthcare – Koramangala"><span class="f-err" id="e_clinic">Enter clinic name</span></div>
       <div class="f"><label class="lbl">Docube Center <span class="req">*</span></label>
         <select id="f_center"><option value="">Select center…</option><option>Docube Healthcare – Koramangala</option><option>Docube Healthcare – Whitefield</option><option>Docube Healthcare – JP Nagar</option><option>Docube Healthcare – Sarjapur</option><option>Docube Healthcare – HRBR</option><option>Other / Independent Practice</option></select>
         <span class="f-err" id="e_center">Select center</span>
       </div>
-      <div class="f"><label class="lbl">Full Address <span class="req">*</span></label><textarea id="f_addr" rows="2" placeholder="Floor, Building, Street, Area…"></textarea><span class="f-err" id="e_addr">Enter address</span></div>
-      <div class="f"><label class="lbl">Google Maps Link <span class="opt">(recommended)</span></label><input type="text" id="f_maps" placeholder="https://maps.google.com/…"></div>
-    </div>
-    <div class="fg" style="margin-top:16px">
-      <div class="f"><label class="lbl">City <span class="req">*</span></label><input type="text" id="f_city" placeholder="Bangalore"><span class="f-err" id="e_city">Enter city</span></div>
-      <div class="f"><label class="lbl">PIN Code <span class="req">*</span></label><input type="text" id="f_pin" placeholder="560034" maxlength="6"><span class="f-err" id="e_pin">Enter 6-digit PIN</span></div>
-      <div class="f span2"><label class="lbl">Clinic Phone <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 80 1234 5678"><span class="f-err" id="e_cphone">Enter clinic phone</span></div>
+      <div class="f"><label class="lbl">Clinic Phone <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 80 1234 5678"><span class="f-err" id="e_cphone">Enter clinic phone</span></div>
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
@@ -164,10 +158,10 @@
       <span class="f-err" id="e_fee">Select fee range</span>
     </div>
     <div class="f">
-      <label class="lbl">Services / Conditions Treated <span class="req">*</span></label>
-      <p class="f-hint" style="margin-bottom:9px">Select all that apply</p>
+      <label class="lbl">Conditions Treated <span class="req">*</span></label>
+      <p class="f-hint" style="margin-bottom:9px">Based on your speciality — select all that apply. Go back to Step 1 to change your speciality.</p>
       <div class="chips" id="servChips"></div>
-      <span class="f-err" id="e_serv">Select at least one service</span>
+      <span class="f-err" id="e_serv">Select at least one condition</span>
     </div>
     <div class="form-nav">
       <button class="btn btn-ghost" onclick="prev(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg> Back</button>
@@ -188,7 +182,6 @@
         <div class="chips langs" id="langChips"></div>
         <span class="f-err" id="e_lang">Select at least one language</span>
       </div>
-      <div class="f"><label class="lbl">Insurance / TPA Accepted <span class="opt">(optional)</span></label><input type="text" id="f_ins" placeholder="Medi Assist, Star Health, CGHS…"><span class="f-hint">Comma-separated</span></div>
       <div class="f"><label class="lbl">Short Bio <span class="opt">(optional)</span></label><textarea id="f_bio" rows="3" placeholder="2–3 sentences about your expertise…"></textarea></div>
       <div class="f"><label class="lbl">Notes for Docube Team <span class="opt">(optional)</span></label><textarea id="f_notes" rows="2" placeholder="Special instructions, existing GMB link…"></textarea></div>
       <div class="f">
@@ -266,7 +259,7 @@
 
       <div class="f">
         <label class="lbl">Speciality <span class="req">*</span></label>
-        <select id="gmb_speciality">
+        <select id="gmb_speciality" onchange="toggleOther('gmb_speciality','gmb_speciality_other')">
           <option value="">Select…</option>
           <option>General Physician / Family Medicine</option>
           <option>Obstetrics & Gynaecology</option>
@@ -285,6 +278,7 @@
           <option>Radiology</option>
           <option>Other</option>
         </select>
+        <input type="text" id="gmb_speciality_other" placeholder="Please specify your speciality" style="display:none;margin-top:8px">
         <span class="f-err" id="e_gmb_speciality">Select your speciality</span>
       </div>
 
@@ -349,8 +343,32 @@
 <script src="shared.js"></script>
 <script>
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const SERVICES = ['General Consultation','Preventive Health','Chronic Disease Management','Vaccinations','Skin & Hair Treatment','Women\'s Health','Child Health','Mental Health / Therapy','Orthopaedic Care','ENT Treatment','Respiratory / Lung Care','Eye Care','Dental & Oral Care','Nutrition & Diet','Physiotherapy','IV Therapy','Health Checkup Packages','Lab Tests','Diagnostic Scans','Pharmacy'];
 const LANGS = ['English','Kannada','Hindi','Tamil','Telugu','Malayalam'];
+
+// Conditions mapped per speciality
+const SERVICES_BY_SPEC = {
+  'General Physician / Family Medicine': ['General Consultation','Fever & Infections','Diabetes Management','Hypertension','Thyroid Disorders','Preventive Health Checkup','Chronic Disease Management','Vaccinations','Nutrition & Diet Advice','Respiratory Illness','Anaemia','Lifestyle Disorders'],
+  'Obstetrics & Gynaecology': ['Antenatal Care','Postnatal Care','Normal Delivery','C-Section','PCOD / PCOS','Menstrual Disorders','Infertility Evaluation','Menopause Management','Pap Smear','Ultrasound Scan','Family Planning','Gynaecological Surgeries'],
+  'Dermatology & Cosmetology': ['Acne & Pimples','Hair Loss Treatment','Skin Allergy','Eczema & Psoriasis','Chemical Peel','Laser Hair Removal','PRP Therapy','Anti-Ageing Treatments','Pigmentation','Wart & Mole Removal','Vitiligo','Nail Disorders'],
+  'Orthopaedics': ['Knee Pain','Back & Spine Pain','Joint Replacement','Sports Injuries','Fracture Treatment','Arthritis Management','Shoulder Pain','Physiotherapy Referral','Bone Density Testing','Ligament Repair','Disc Problems','Orthopaedic Surgery'],
+  'Neurology': ['Headache & Migraine','Epilepsy','Stroke Management','Parkinson\'s Disease','Memory Disorders','Multiple Sclerosis','Neuropathy','Vertigo & Dizziness','Sleep Disorders','EEG','Nerve Conduction Study','Dementia'],
+  'Cardiology': ['Chest Pain Evaluation','ECG','Echocardiography','Hypertension Management','Heart Failure','Arrhythmia','Coronary Artery Disease','Cholesterol Management','TMT / Stress Test','Pacemaker Follow-up','Cardiac Rehabilitation','Preventive Cardiology'],
+  'ENT Specialist': ['Ear Pain & Infections','Hearing Loss','Sinusitis','Tonsillitis','Nasal Polyps','Voice & Speech Problems','Tinnitus','Vertigo','Sleep Apnoea','Adenoid Problems','Throat Infections','ENT Surgery'],
+  'Psychiatry & Mental Health': ['Depression & Anxiety','OCD','Bipolar Disorder','Schizophrenia','ADHD','Addiction & De-addiction','Stress Management','Cognitive Behavioural Therapy','Child & Adolescent Psychiatry','Sleep Disorders','PTSD','Psychological Counselling'],
+  'Respiratory Medicine': ['Asthma','COPD','Breathlessness','Chronic Cough','Pulmonary Function Test','Sleep Apnoea','Tuberculosis','Lung Infections','Allergy Testing','Nebulisation','Oxygen Therapy','Bronchoscopy'],
+  'Gastroenterology': ['Acidity & GERD','IBS','Liver Disease','Colonoscopy','Endoscopy','Crohn\'s Disease','Jaundice','Hepatitis','Constipation','Abdominal Pain','Fatty Liver','Colon Cancer Screening'],
+  'Paediatrics': ['Well Baby Checkup','Vaccination','Growth & Development','Fever in Children','Newborn Care','Child Nutrition','Paediatric Allergies','Asthma in Children','ADHD in Children','Ear Infections','Diarrhoea & Dehydration','Paediatric Surgery Referral'],
+  'Dentistry': ['Dental Checkup','Tooth Extraction','Root Canal Treatment','Teeth Cleaning','Braces & Aligners','Dental Implants','Cavity Filling','Gum Disease','Teeth Whitening','Crowns & Bridges','Wisdom Tooth','Paediatric Dentistry'],
+  'Physiotherapy': ['Back & Neck Pain','Post-Surgery Rehabilitation','Sports Injury Rehab','Neurological Rehab','Joint Mobilisation','Electrotherapy','Dry Needling','Posture Correction','Shoulder & Knee Rehab','Stroke Rehab','Pelvic Floor Therapy','Home Physiotherapy'],
+  'Oncology': ['Cancer Screening','Chemotherapy','Radiation Therapy','Tumour Biopsy','Post-Cancer Rehabilitation','Palliative Care','Blood Cancer','Breast Cancer','Lung Cancer','Colon Cancer','Cervical Cancer','Bone Marrow Transplant'],
+  'Radiology': ['X-Ray','MRI Scan','CT Scan','Ultrasound','Mammography','Bone Density Scan','PET Scan','Interventional Radiology','Fluoroscopy','Doppler Study','Echocardiography Report','Nuclear Medicine'],
+  'Other': ['General Consultation','Preventive Health','Chronic Disease Management','Vaccinations','Health Checkup','Lab Tests','Diagnostic Scans','Follow-up Consultation'],
+};
+const DEFAULT_SERVICES = ['General Consultation','Preventive Health','Chronic Disease Management','Vaccinations','Health Checkup','Lab Tests','Diagnostic Scans','Follow-up Consultation'];
+
+function getServicesForSpec(spec) {
+  return SERVICES_BY_SPEC[spec] || DEFAULT_SERVICES;
+}
 
 // Build hours
 const hw = document.getElementById('hoursWrap');
@@ -366,6 +384,7 @@ function toggleDay(d) { const cb = document.getElementById('hx-' + d); document.
 
 function buildChips(containerId, items) {
   const container = document.getElementById(containerId);
+  container.innerHTML = '';
   items.forEach(s => {
     const c = document.createElement('label');
     c.className = 'chip';
@@ -375,8 +394,18 @@ function buildChips(containerId, items) {
     container.appendChild(c);
   });
 }
-buildChips('servChips', SERVICES);
+
+function refreshServChips() {
+  const spec = resolveOther('f_spec', 'f_spec_other');
+  buildChips('servChips', getServicesForSpec(spec));
+}
+
 buildChips('langChips', LANGS);
+buildChips('servChips', DEFAULT_SERVICES);
+
+// Rebuild service chips whenever speciality changes
+document.getElementById('f_spec').addEventListener('change', refreshServChips);
+document.getElementById('f_spec_other').addEventListener('input', refreshServChips);
 
 function getChecked(containerId) { return [...document.querySelectorAll(`#${containerId} .chip.on`)].map(c => c.dataset.value); }
 function pickPill(el, groupId) { document.querySelectorAll(`#${groupId} .pill`).forEach(p => p.classList.remove('on')); el.classList.add('on'); }
@@ -393,17 +422,15 @@ function validateStep(s) {
   let ok = true;
   if (s === 0) {
     ok &= vF('f_name','e_name', v => v.trim().length > 1);
-    ok &= vF('f_spec','e_spec', v => v !== '');
+    const specVal = document.getElementById('f_spec').value;
+    const specOk = specVal !== '' && (specVal !== 'Other' || document.getElementById('f_spec_other').value.trim().length > 0);
+    document.getElementById('e_spec').classList.toggle('show', !specOk); if (!specOk) ok = false;
     ok &= vF('f_quals','e_quals', v => v.trim().length > 1);
     ok &= vF('f_exp','e_exp', v => v !== '');
     ok &= vF('f_phone','e_phone', v => /^[+0-9\s\-]{7,}$/.test(v));
     ok &= vF('f_email','e_email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
   } else if (s === 1) {
-    ok &= vF('f_clinic','e_clinic', v => v.trim().length > 1);
     ok &= vF('f_center','e_center', v => v !== '');
-    ok &= vF('f_addr','e_addr', v => v.trim().length > 5);
-    ok &= vF('f_city','e_city', v => v.trim().length > 0);
-    ok &= vF('f_pin','e_pin', v => /^\d{6}$/.test(v.trim()));
     ok &= vF('f_cphone','e_cphone', v => /^[+0-9\s\-]{7,}$/.test(v));
   } else if (s === 2) {
     const fee = document.querySelector('input[name="fee"]:checked');
@@ -417,7 +444,9 @@ function validateStep(s) {
     ok &= vF('gmb_full_name','e_gmb_full_name', v => v.trim().length > 1);
     ok &= vF('gmb_qualifications','e_gmb_qualifications', v => v.trim().length > 1);
     ok &= vF('gmb_experience','e_gmb_experience', v => v !== '');
-    ok &= vF('gmb_speciality','e_gmb_speciality', v => v !== '');
+    const gmbSpec = document.getElementById('gmb_speciality').value;
+    const gmbSpecOk = gmbSpec !== '' && (gmbSpec !== 'Other' || document.getElementById('gmb_speciality_other').value.trim().length > 0);
+    document.getElementById('e_gmb_speciality').classList.toggle('show', !gmbSpecOk); if (!gmbSpecOk) ok = false;
     const hv = document.querySelector('input[name="home_visit"]:checked');
     document.getElementById('e_home_visit').classList.toggle('show', !hv); if (!hv) ok = false;
   }
@@ -430,16 +459,24 @@ function next(s) {
   document.getElementById('card' + s).classList.remove('active');
   document.getElementById('card' + (s + 1)).classList.add('active');
   updateObSteps(s + 1); obStep = s + 1;
+  // Refresh service chips when entering Step 3
+  if (s + 1 === 2) refreshServChips();
   // Pre-fill GMB step from Step 1 values
   if (s + 1 === 4) {
     const nameVal = document.getElementById('f_name').value.trim();
     const qualsVal = document.getElementById('f_quals').value.trim();
     const expVal = document.getElementById('f_exp').value;
-    const specVal = document.getElementById('f_spec').value;
+    const specVal = resolveOther('f_spec', 'f_spec_other');
     if (nameVal && !document.getElementById('gmb_full_name').value) document.getElementById('gmb_full_name').value = nameVal;
     if (qualsVal && !document.getElementById('gmb_qualifications').value) document.getElementById('gmb_qualifications').value = qualsVal;
     if (expVal && !document.getElementById('gmb_experience').value) document.getElementById('gmb_experience').value = expVal;
-    if (specVal && !document.getElementById('gmb_speciality').value) document.getElementById('gmb_speciality').value = specVal;
+    if (specVal && specVal !== 'Other' && !document.getElementById('gmb_speciality').value) document.getElementById('gmb_speciality').value = specVal;
+    if (specVal && specVal !== 'Other' && document.getElementById('gmb_speciality').value !== specVal) {
+      // If it's a custom "Other" value, show the other input on step 5
+      document.getElementById('gmb_speciality').value = 'Other';
+      document.getElementById('gmb_speciality_other').value = specVal;
+      document.getElementById('gmb_speciality_other').style.display = 'block';
+    }
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -465,37 +502,26 @@ async function submitForm() {
   document.getElementById('submitIcon').style.display = 'none';
   btn.disabled = true;
   const hours = DAYS.map(d => ({ day: d, open: document.getElementById('ho-'+d).value, close: document.getElementById('hc-'+d).value, closed: document.getElementById('hx-'+d).checked }));
+  const center = document.getElementById('f_center').value;
   const data = {
     full_name: document.getElementById('f_name').value.trim(),
-    speciality: document.getElementById('f_spec').value,
+    speciality: resolveOther('f_spec', 'f_spec_other'),
     qualifications: document.getElementById('f_quals').value.trim(),
     experience: document.getElementById('f_exp').value,
     phone: document.getElementById('f_phone').value.trim(),
     whatsapp: document.getElementById('f_wa').value.trim(),
     email: document.getElementById('f_email').value.trim(),
-    clinic_name: document.getElementById('f_clinic').value.trim(),
-    docube_center: document.getElementById('f_center').value,
-    address: document.getElementById('f_addr').value.trim(),
-    maps_link: document.getElementById('f_maps').value.trim(),
-    city: document.getElementById('f_city').value.trim(),
-    pincode: document.getElementById('f_pin').value.trim(),
+    clinic_name: center,
+    docube_center: center,
     clinic_phone: document.getElementById('f_cphone').value.trim(),
     consultation_hours: hours,
     appointment_type: document.querySelector('input[name="appt"]:checked')?.value,
     fee_range: document.querySelector('input[name="fee"]:checked')?.value,
     services: getChecked('servChips'),
     languages: getChecked('langChips'),
-    insurance: document.getElementById('f_ins').value.trim(),
     bio: document.getElementById('f_bio').value.trim(),
     notes: document.getElementById('f_notes').value.trim(),
     existing_gmb: document.querySelector('input[name="gmb"]:checked')?.value,
-    // GMB Profile fields
-    gmb_full_name: document.getElementById('gmb_full_name').value.trim(),
-    gmb_qualifications: document.getElementById('gmb_qualifications').value.trim(),
-    gmb_experience: document.getElementById('gmb_experience').value,
-    gmb_speciality: document.getElementById('gmb_speciality').value,
-    gmb_home_visits: document.querySelector('input[name="home_visit"]:checked')?.value,
-    gmb_service_area: document.getElementById('gmb_service_area').value.trim(),
     gmb_status: 'pending'
   };
   try {
@@ -504,12 +530,29 @@ async function submitForm() {
     document.getElementById('obSuccess').classList.add('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch(e) {
-    toast('Submission failed. Try again.', 'error');
+    console.error('Submission error:', e.message);
+    toast(`Submission failed: ${e.message.slice(0, 80)}`, 'error');
     document.getElementById('submitTxt').textContent = 'Submit to Docube';
     document.getElementById('submitSpinner').style.display = 'none';
     document.getElementById('submitIcon').style.display = 'block';
     btn.disabled = false;
   }
+}
+
+function toggleOther(selectId, inputId) {
+  const sel = document.getElementById(selectId);
+  const inp = document.getElementById(inputId);
+  inp.style.display = sel.value === 'Other' ? 'block' : 'none';
+  if (sel.value !== 'Other') inp.value = '';
+}
+
+function resolveOther(selectId, inputId) {
+  const sel = document.getElementById(selectId);
+  if (sel.value === 'Other') {
+    const custom = document.getElementById(inputId).value.trim();
+    return custom || 'Other';
+  }
+  return sel.value;
 }
 
 function toggleServiceArea(show) {
