@@ -45,9 +45,3 @@ function initials(name) {
   if (!name) return 'D';
   return name.replace(/^Dr\.?\s*/i, '').split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 }
-
-function formatTime(t) {
-  const [h, m] = t.split(':').map(Number);
-  const ap = h >= 12 ? 'PM' : 'AM';
-  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${ap}`;
-}
