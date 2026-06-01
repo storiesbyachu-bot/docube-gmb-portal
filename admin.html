@@ -450,7 +450,7 @@ function formatTicketValue(raw) {
   }
   // Array of hours objects
   if (Array.isArray(val) && val.length && val[0].day) {
-    return `<table style="font-size:11.5px;border-collapse:collapse">${val.map(h => `<tr><td style="color:var(--text-muted);font-weight:600;padding:1px 6px 1px 0;width:32px">${h.day.slice(0,3)}</td><td style="color:var(--text)">${h.closed ? '<span style="color:#e05252">Closed</span>' : `${h.open}–${h.close}`}</td></tr>`).join('')}</table>`;
+    return `<table style="font-size:11.5px;border-collapse:collapse">${val.map(h => `<tr><td style="color:var(--text-muted);font-weight:600;padding:1px 6px 1px 0;width:32px">${h.day.slice(0,3)}</td><td style="color:var(--text)">${h.closed ? '<span style="color:#e05252">Closed</span>' : `${h.open}–${h.close}${h.open2?` · ${h.open2}–${h.close2}`:''}`}</td></tr>`).join('')}</table>`;
   }
   // Plain string
   return `<span style="font-size:12.5px;color:var(--text)">${String(val)}</span>`;
@@ -520,7 +520,7 @@ async function viewDoctor(id) {
       <div class="doc-section">
         <div class="doc-section-title">Consultation Hours</div>
         <table class="doc-hours-table">
-          ${hours.length ? hours.map(h=>`<tr><td class="day">${h.day.slice(0,3)}</td><td>${h.closed?'<span style="color:#e05252;font-size:12px;font-weight:600">Closed</span>':`${h.open} – ${h.close}`}</td></tr>`).join('') : '<tr><td colspan="2" style="color:var(--text-muted);font-size:13px">Not provided</td></tr>'}
+          ${hours.length ? hours.map(h=>`<tr><td class="day">${h.day.slice(0,3)}</td><td>${h.closed?'<span style="color:#e05252;font-size:12px;font-weight:600">Closed</span>':`${h.open} – ${h.close}${h.open2?` &nbsp;·&nbsp; ${h.open2} – ${h.close2}`:''}`}</td></tr>`).join('') : '<tr><td colspan="2" style="color:var(--text-muted);font-size:13px">Not provided</td></tr>'}
         </table>
       </div>
 
