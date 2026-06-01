@@ -313,8 +313,12 @@ async function updateGmbStatus(id, status) {
   try {
     await sbPatch('doctor_profiles', `id=eq.${id}`, { gmb_status: status });
     toast(`GMB status updated to ${status}!`);
+    loadGmbStatus();
     loadDashboard();
-  } catch(e) { toast('Update failed', 'error'); }
+  } catch(e) {
+    console.error('GMB update error:', e.message);
+    toast('Update failed: ' + e.message.slice(0,60), 'error');
+  }
 }
 
 // ── URL MODAL ──
