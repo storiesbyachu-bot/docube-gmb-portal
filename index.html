@@ -152,7 +152,7 @@ function renderDoctors(docs) {
       </div>
       <div class="dl-tags">
         <span class="dl-tag">${d.experience}</span>
-        ${d.gmb_status === 'live' ? '<span class="badge badge-live">GMB Live</span>' : '<span class="badge badge-pending">GMB Pending</span>'}
+        ${d.appointment_type ? `<span class="dl-tag">${d.appointment_type}</span>` : ''}
         ${langs.slice(0, 2).map(l => `<span class="dl-tag">${l}</span>`).join('')}
       </div>
       <div class="dl-foot">
