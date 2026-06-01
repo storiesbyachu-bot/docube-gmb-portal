@@ -31,6 +31,15 @@
 .card-head{display:flex;align-items:flex-start;gap:14px;padding-bottom:22px;margin-bottom:26px;border-bottom:1px solid var(--border-light)}
 .card-icon{width:42px;height:42px;border-radius:10px;background:var(--orange-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .card-icon svg{width:20px;height:20px;color:var(--orange)}
+.center-row{display:flex;align-items:center;gap:12px;padding:13px 16px;cursor:pointer;border-bottom:1px solid var(--border-light);transition:background .15s;user-select:none;background:#fff}
+.center-row:last-child{border-bottom:none}
+.center-row:hover{background:var(--teal-pale)}
+.center-row input[type=checkbox]{display:none}
+.center-row-check{width:18px;height:18px;border:1.5px solid var(--border);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:#fff}
+.center-row input:checked ~ .center-row-check{background:var(--teal-dark);border-color:var(--teal-dark)}
+.center-row input:checked ~ .center-row-check::after{content:'';display:block;width:5px;height:9px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+.center-row-label{font-size:14px;font-weight:500;color:var(--text)}
+.center-row input:checked ~ .center-row-check ~ .center-row-label{color:var(--navy);font-weight:600}
 .card-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--navy)}
 .card-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px}
 @media(max-width:560px){.card{padding:20px 16px}}
@@ -115,8 +124,14 @@
     <div class="fg one">
       <div class="f">
         <label class="lbl">Docube Centers <span class="req">*</span></label>
-        <p class="f-hint" style="margin-bottom:9px">Select all that apply</p>
-        <div class="chips langs" id="centerChips"></div>
+        <p class="f-hint" style="margin-bottom:10px">Select all centers where you consult</p>
+        <div style="display:flex;flex-direction:column;gap:0;border:1.5px solid var(--border);border-radius:var(--r-sm);overflow:hidden" id="centerCheckboxes">
+          <label class="center-row"><input type="checkbox" name="docube_center" value="Docube Healthcare – Koramangala"><span class="center-row-check"></span><span class="center-row-label">Koramangala</span></label>
+          <label class="center-row"><input type="checkbox" name="docube_center" value="Docube Healthcare – Whitefield"><span class="center-row-check"></span><span class="center-row-label">Whitefield</span></label>
+          <label class="center-row"><input type="checkbox" name="docube_center" value="Docube Healthcare – JP Nagar"><span class="center-row-check"></span><span class="center-row-label">JP Nagar</span></label>
+          <label class="center-row"><input type="checkbox" name="docube_center" value="Docube Healthcare – Sarjapur"><span class="center-row-check"></span><span class="center-row-label">Sarjapur</span></label>
+          <label class="center-row"><input type="checkbox" name="docube_center" value="Docube Healthcare – HRBR"><span class="center-row-check"></span><span class="center-row-label">HRBR</span></label>
+        </div>
         <span class="f-err" id="e_center">Select at least one center</span>
       </div>
       <div class="f"><label class="lbl">Clinic Phone <span class="req">*</span></label><input type="tel" id="f_cphone" placeholder="+91 80 1234 5678"><span class="f-err" id="e_cphone">Enter clinic phone</span></div>
@@ -187,11 +202,67 @@
       <div class="f"><label class="lbl">Short Bio <span class="opt">(optional)</span></label><textarea id="f_bio" rows="3" placeholder="2–3 sentences about your expertise…"></textarea></div>
       <div class="f"><label class="lbl">Notes for Docube Team <span class="opt">(optional)</span></label><textarea id="f_notes" rows="2" placeholder="Special instructions, existing GMB link…"></textarea></div>
       <div class="f">
-        <label class="lbl">Existing GMB Profile?</label>
-        <div class="pills" id="gmbPills">
-          <label class="pill on" onclick="pickPill(this,'gmbPills')"><input type="radio" name="gmb" value="No, create new" checked>No, create new</label>
-          <label class="pill" onclick="pickPill(this,'gmbPills')"><input type="radio" name="gmb" value="Yes, I have one">Yes, I have one</label>
-          <label class="pill" onclick="pickPill(this,'gmbPills')"><input type="radio" name="gmb" value="Not sure">Not sure</label>
+        <label class="lbl">Do you already have a Google Business Profile?</label>
+        <div class="pills" id="gmbPills" style="margin-top:4px">
+          <label class="pill on" onclick="pickPill(this,'gmbPills');toggleGmbFields('no')"><input type="radio" name="gmb" value="No, create new" checked>No — create one for me</label>
+          <label class="pill" onclick="pickPill(this,'gmbPills');toggleGmbFields('yes')"><input type="radio" name="gmb" value="Yes, I have one">Yes, I have one</label>
+          <label class="pill" onclick="pickPill(this,'gmbPills');toggleGmbFields('no')"><input type="radio" name="gmb" value="Not sure">Not sure</label>
+        </div>
+      </div>
+
+      <!-- Shown only when Yes is selected -->
+      <div id="gmbExistingWrap" style="display:none" class="f span2">
+        <div style="background:#fff;border:1.5px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-top:4px">
+
+          <!-- GMB Link -->
+          <div style="padding:16px 18px;border-bottom:1px solid var(--border-light)">
+            <label class="lbl" style="margin-bottom:6px;display:block">Your Google Business Profile Link <span class="req">*</span></label>
+            <input type="text" id="gmb_existing_link" placeholder="https://g.page/your-business or https://maps.google.com/…">
+            <p class="f-hint" style="margin-top:5px">Find it by searching your name on Google Maps → Share → Copy link</p>
+            <span class="f-err" id="e_gmb_existing_link">Please paste your GMB profile link</span>
+          </div>
+
+          <!-- Access instructions -->
+          <div style="padding:16px 18px;background:linear-gradient(135deg,rgba(77,217,217,.06),rgba(245,166,35,.04))">
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:7px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--teal-dark)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Give Docube access to manage your profile
+            </div>
+            <p style="font-size:12.5px;color:var(--text-mid);line-height:1.6;margin-bottom:14px">To improve your search visibility, please add <strong>info@docube.in</strong> as a Manager on your Google Business Profile. This takes 2 minutes:</p>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--teal-dark);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</span>
+                <span style="font-size:12.5px;color:var(--text-mid)">Go to <a href="https://business.google.com" target="_blank" style="color:var(--teal-dark);font-weight:600">business.google.com</a> and sign in</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--teal-dark);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</span>
+                <span style="font-size:12.5px;color:var(--text-mid)">Select your business profile</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--teal-dark);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</span>
+                <span style="font-size:12.5px;color:var(--text-mid)">Go to <strong>Settings → Managers → Add manager</strong></span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--teal-dark);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">4</span>
+                <span style="font-size:12.5px;color:var(--text-mid)">Enter <strong style="color:var(--navy)">info@docube.in</strong> and set role as <strong>Manager</strong></span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <span style="width:22px;height:22px;border-radius:50%;background:var(--teal-dark);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">5</span>
+                <span style="font-size:12.5px;color:var(--text-mid)">Click <strong>Invite</strong> — we'll accept and start managing</span>
+              </div>
+            </div>
+            <!-- Copy email button -->
+            <button type="button" onclick="copyGmbEmail()" style="display:inline-flex;align-items:center;gap:7px;background:var(--navy);color:#fff;border:none;border-radius:7px;padding:9px 16px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .16s" id="copyEmailBtn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy info@docube.in
+            </button>
+          </div>
+
+          <!-- Confirmation checkbox -->
+          <div style="padding:14px 18px;border-top:1px solid var(--border-light);display:flex;align-items:flex-start;gap:10px">
+            <input type="checkbox" id="gmb_access_confirmed" style="margin-top:2px;width:15px;height:15px;accent-color:var(--teal-dark);cursor:pointer;flex-shrink:0">
+            <label for="gmb_access_confirmed" style="font-size:12.5px;color:var(--text-mid);line-height:1.55;cursor:pointer">I have added <strong>info@docube.in</strong> as a Manager, or I will do so after submitting this form</label>
+          </div>
         </div>
       </div>
     </div>
@@ -402,11 +473,8 @@ function refreshServChips() {
   buildChips('servChips', getServicesForSpec(spec));
 }
 
-const CENTERS = ['Docube Healthcare – Koramangala','Docube Healthcare – Whitefield','Docube Healthcare – JP Nagar','Docube Healthcare – Sarjapur','Docube Healthcare – HRBR','Other / Independent Practice'];
-
 buildChips('langChips', LANGS);
 buildChips('servChips', DEFAULT_SERVICES);
-buildChips('centerChips', CENTERS);
 
 // Rebuild service chips whenever speciality changes
 document.getElementById('f_spec').addEventListener('change', refreshServChips);
@@ -435,7 +503,7 @@ function validateStep(s) {
     ok &= vF('f_phone','e_phone', v => /^[+0-9\s\-]{7,}$/.test(v));
     ok &= vF('f_email','e_email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
   } else if (s === 1) {
-    const centers = getChecked('centerChips');
+    const centers = [...document.querySelectorAll('input[name="docube_center"]:checked')].map(i => i.value);
     document.getElementById('e_center').classList.toggle('show', !centers.length);
     if (!centers.length) ok = false;
     ok &= vF('f_cphone','e_cphone', v => /^[+0-9\s\-]{7,}$/.test(v));
@@ -447,6 +515,13 @@ function validateStep(s) {
   } else if (s === 3) {
     const lang = getChecked('langChips').length > 0;
     document.getElementById('e_lang').classList.toggle('show', !lang); if (!lang) ok = false;
+    const gmbChoice = document.querySelector('input[name="gmb"]:checked')?.value;
+    if (gmbChoice === 'Yes, I have one') {
+      const link = document.getElementById('gmb_existing_link').value.trim();
+      const linkOk = link.length > 5;
+      document.getElementById('e_gmb_existing_link').classList.toggle('show', !linkOk);
+      if (!linkOk) ok = false;
+    }
   } else if (s === 4) {
     ok &= vF('gmb_full_name','e_gmb_full_name', v => v.trim().length > 1);
     ok &= vF('gmb_qualifications','e_gmb_qualifications', v => v.trim().length > 1);
@@ -509,7 +584,7 @@ async function submitForm() {
   document.getElementById('submitIcon').style.display = 'none';
   btn.disabled = true;
   const hours = DAYS.map(d => ({ day: d, open: document.getElementById('ho-'+d).value, close: document.getElementById('hc-'+d).value, closed: document.getElementById('hx-'+d).checked }));
-  const centers = getChecked('centerChips');
+  const centers = [...document.querySelectorAll('input[name="docube_center"]:checked')].map(i => i.value);
   const data = {
     full_name: document.getElementById('f_name').value.trim(),
     speciality: resolveOther('f_spec', 'f_spec_other'),
@@ -530,6 +605,8 @@ async function submitForm() {
     bio: document.getElementById('f_bio').value.trim(),
     notes: document.getElementById('f_notes').value.trim(),
     existing_gmb: document.querySelector('input[name="gmb"]:checked')?.value,
+    gmb_existing_link: document.getElementById('gmb_existing_link').value.trim(),
+    gmb_access_confirmed: document.getElementById('gmb_access_confirmed').checked,
     gmb_status: 'pending'
   };
   try {
@@ -565,6 +642,22 @@ function resolveOther(selectId, inputId) {
 
 function toggleServiceArea(show) {
   document.getElementById('serviceAreaWrap').style.display = show ? 'flex' : 'none';
+}
+
+function toggleGmbFields(mode) {
+  document.getElementById('gmbExistingWrap').style.display = mode === 'yes' ? 'block' : 'none';
+}
+
+function copyGmbEmail() {
+  navigator.clipboard.writeText('info@docube.in').then(() => {
+    const btn = document.getElementById('copyEmailBtn');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    btn.style.background = 'var(--teal-dark)';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy info@docube.in';
+      btn.style.background = 'var(--navy)';
+    }, 2000);
+  });
 }
 </script>
 </body>
